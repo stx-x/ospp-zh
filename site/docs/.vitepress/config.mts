@@ -42,6 +42,30 @@ export default defineConfig({
     search: {
       provider: 'local',
       options: {
+        miniSearch: {
+          options: {
+            // 中文按二元组切分（bigram），否则整句会成为一个 token，搜索命中率极低
+            tokenize: (text: string) => {
+              const out: string[] = []
+              const parts = text.split(/[\s\-_/.,;:!?()[\]{}"'“”‘’、，。；：！？（）《》]+/)
+              for (const p of parts) {
+                if (!p) continue
+                if (/[\u4e00-\u9fa5]/.test(p)) {
+                  for (let i = 0; i < p.length - 1; i++) out.push(p.slice(i, i + 2))
+                  if (p.length === 1) out.push(p)
+                } else {
+                  out.push(p.toLowerCase())
+                }
+              }
+              return out
+            },
+          },
+          searchOptions: {
+            prefix: true,
+            fuzzy: 0.15,
+            boost: { title: 4, text: 2, titles: 2 },
+          },
+        },
         translations: {
           button: {
             buttonText: '搜索',
