@@ -23,3 +23,6 @@ book1/*.pdf
 book3/*.pdf
 book4/*.pdf
 dist-pdf/
+
+# OSTEP 是独立仓库
+ostep/

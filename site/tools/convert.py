@@ -334,7 +334,7 @@ def inline_md(s):
         return "\x01%d\x01" % (len(ital) - 1)
     s = re.sub(r"(?<![A-Za-z0-9_])_([^_\n]{1,300}?)_(?![A-Za-z0-9_])", _it, s)
     s = re.sub(r"\*([^*\n]{1,300}?)\*", r"<strong>\1</strong>", s)
-    s = re.sub(r"\x01(\d+)\x01", lambda m: "*" + ital[int(m.group(1))] + "*", s)
+    s = re.sub(r"\x01(\d+)\x01", lambda m: "<em>" + ital[int(m.group(1))] + "</em>", s)
     def rep(m):
         t = store[int(m.group(1))]
         if t.startswith("`"):
