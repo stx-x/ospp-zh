@@ -563,7 +563,7 @@ def main():
             body = clean_md(convert(front, v["key"], src_img))
             if len(body) > 60:
                 open(os.path.join(docs, "preface.md"), "w").write(
-                    "---\ntitle: 前言\n---\n\n" + body)
+                    "---\ntitle: 前言\n---\n\n# 前言\n\n" + body)
                 stats["front"] = len(body)
 
         for ci, (num, zh, en, epi, body_raw) in enumerate(chaps):
@@ -573,12 +573,12 @@ def main():
                 if kind not in appendix_seen:
                     appendix_seen[kind] = t
             body = clean_md(convert(main_raw, v["key"], src_img))
-            head = []
+            head = ["# 第 %s 章　%s" % (num, zh)]
             if en:
                 head.append('<div class="chap-en">%s</div>' % en)
             if epi:
                 head.append('<blockquote class="epigraph">%s</blockquote>' % inline_html(epi))
-            content = ("\n".join(head) + "\n\n" if head else "") + body
+            content = "\n\n".join(head) + "\n\n" + body
             fn = "ch%s.md" % num
             open(os.path.join(vd, fn), "w").write(
                 '---\ntitle: "第 %s 章　%s"\n---\n\n%s' % (num, zh, content))
@@ -595,7 +595,7 @@ def main():
         t, fn = titles[kind]
         body = clean_md(convert(txt, "vol1", os.path.join(root, "book1/figures")))
         open(os.path.join(ad, fn), "w").write(
-            "---\ntitle: %s\n---\n\n" % t + body)
+            "---\ntitle: %s\n---\n\n# %s\n\n" % (t, t) + body)
         print("appendix", kind, len(body))
 
 if __name__ == "__main__":

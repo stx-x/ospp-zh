@@ -2,7 +2,10 @@
 title: "第 1 章　引论"
 ---
 
+# 第 1 章　引论
+
 <div class="chap-en">Introduction</div>
+
 <blockquote class="epigraph">我在幼儿园里学到了真正需要知道的一切。——<strong>罗伯特·富尔格姆（Robert Fulgham）</strong></blockquote>
 
 我们如何构建可靠、可移植、高效且安全的计算机系统？一个关键组成部分是计算机的**操作系统**（operating system）——即管理计算机资源的软件。

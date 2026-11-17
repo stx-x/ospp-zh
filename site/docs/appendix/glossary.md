@@ -2,6 +2,8 @@
 title: 术语表
 ---
 
+# 术语表
+
 <div class="glossary-grid">
 
 <div class="gloss-item"><div class="g-head"><span class="g-zh">绝对路径</span><span class="g-en">absolute path</span></div><div class="g-body">相对于根目录解释的文件路径名。</div></div>

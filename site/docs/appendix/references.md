@@ -2,6 +2,8 @@
 title: 参考文献
 ---
 
+# 参考文献
+
 以下文献按原书编号列出，保留英文原文。
 
 <div class="bib-item"><span class="bib-num">[1]</span>Keith Adams and Ole Agesen. A comparison of software and hardware techniques for x86 virtualization. In Proceedings of the 12th International conference on Architectural Support for Programming Languages and Operating Systems, ASPLOS-XII, pages 2–13, 2006.</div>

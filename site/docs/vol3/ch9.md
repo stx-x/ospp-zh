@@ -2,7 +2,10 @@
 title: "第 9 章　缓存与虚拟内存"
 ---
 
+# 第 9 章　缓存与虚拟内存
+
 <div class="chap-en">Caching and Virtual Memory</div>
+
 <blockquote class="epigraph">现金为王。\
 ——<em>佩尔·于伦哈马尔（Per Gyllenhammar）</em></blockquote>
 

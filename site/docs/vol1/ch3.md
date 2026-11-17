@@ -2,7 +2,10 @@
 title: "第 3 章　编程接口"
 ---
 
+# 第 3 章　编程接口
+
 <div class="chap-en">The Programming Interface</div>
+
 <blockquote class="epigraph">从程序员的视角来看，用户就是一个外设——当你发出读请求时，它才会敲字。——<strong>彼得·威廉斯（Peter Williams）</strong></blockquote>
 
 上一章讨论了操作系统内核为实现进程抽象所需的机制。进程是程序的一个实例——内核提供一个高效的沙箱，让不可信的代码以用户级身份直接运行在处理器上。

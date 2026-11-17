@@ -2,7 +2,10 @@
 title: "第 2 章　内核抽象"
 ---
 
+# 第 2 章　内核抽象
+
 <div class="chap-en">The Kernel Abstraction</div>
+
 <blockquote class="epigraph">好篱笆造就好邻居。——<strong>17 世纪谚语</strong></blockquote>
 
 操作系统的一个核心作用是**保护**（protection）——把可能行为不端的应用程序和用户隔离起来，使它们不至于破坏其他应用程序或操作系统自身。对于实现上一章提到的若干操作系统目标而言，保护是必不可少的：

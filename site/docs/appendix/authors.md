@@ -2,6 +2,8 @@
 title: 关于作者
 ---
 
+# 关于作者
+
 **Thomas Anderson** 是华盛顿大学（University of Washington）计算机科学与工程的 Warren Francis and Wilma Kolm Bradley 讲席教授，自 1997 年起一直在该校讲授计算机科学。
 
 Anderson 教授的研究工作广受认可，先后获得 Diane S. McEntyre 卓越教学奖、USENIX 终身成就奖、IEEE 小林弘治计算机与通信奖、ACM SIGOPS Mark Weiser 奖、USENIX 软件工具用户组奖、IEEE 通信学会 William R. Bennett 奖、美国国家科学基金会（NSF）总统青年教师奖，以及 Alfred P. Sloan 研究奖学金。他是 ACM 会士，曾担任 ACM SIGCOMM 会议的程序共同主席和 ACM 操作系统原理研讨会（SOSP）的程序主席。2003 年，他参与共同创办了 USENIX/ACM 网络系统设计与实现研讨会（NSDI）。

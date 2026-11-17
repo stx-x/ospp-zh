@@ -2,7 +2,10 @@
 title: "第 5 章　共享对象的同步访问"
 ---
 
+# 第 5 章　共享对象的同步访问
+
 <div class="chap-en">Synchronizing Access to Shared Objects</div>
+
 <blockquote class="epigraph">仅仅勤奋是不够的，蚂蚁也很勤奋。问题在于：我们勤奋为了什么？——<em>亨利·戴维·梭罗</em></blockquote>
 
 多线程程序扩展了传统的单线程编程模型：每个线程都提供一条由我们所熟悉的指令构成的单一顺序执行流。如果一个程序含有作用于完全分离的内存子集的*独立线程*（independent threads），我们就可以分别对每个线程进行推理。在这种情况下，对独立线程的推理与对一系列彼此独立的单线程程序的推理几乎没有差别。
