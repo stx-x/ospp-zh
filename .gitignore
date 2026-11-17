@@ -22,3 +22,4 @@ book/*.pdf
 book1/*.pdf
 book3/*.pdf
 book4/*.pdf
+dist-pdf/
