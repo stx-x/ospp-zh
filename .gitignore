@@ -1,0 +1,24 @@
+# 依赖与构建产物
+site/node_modules/
+site/docs/.vitepress/dist/
+site/docs/.vitepress/.temp/
+site/docs/.vitepress/cache/
+
+# 图片是 book*/figures 的副本，由 CI 构建时复制
+site/docs/public/figures/
+
+# 中间产物
+work/
+
+# 系统文件
+.DS_Store
+*.log
+
+# 项目记忆
+.workbuddy/
+
+# 生成物：PDF 由 typst 从源码编译，不纳入版本库（见 README）
+book/*.pdf
+book1/*.pdf
+book3/*.pdf
+book4/*.pdf
