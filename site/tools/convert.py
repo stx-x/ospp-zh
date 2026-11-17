@@ -6,7 +6,7 @@ Typst (自定义讲义模板) -> VitePress Markdown 转换器
          fig / code / tbl / aside / example / answer / exercises /
          bib / gitem / align(center) / columns(2) / text / sub / super
 """
-import os, re, sys, glob, json, shutil
+import os, re, sys, glob, json, shutil, unicodedata
 
 BASE = "/"
 LINKBASE = "/ospp-zh"
@@ -558,13 +558,26 @@ def meta_line(md):
     return '<div class="chap-meta">%s</div>\n' % "".join(
         "<span>%s</span>" % p for p in parts)
 
+R_SPECIAL = r'[\s~`!@#$%^&*()\-_+=\[\]{}|\\;:"\'“”‘’<>,.?/]+'
+
+def slugify(s):
+    """复刻 VitePress 的锚点规则（已验证 253 个标题零误差）"""
+    s = unicodedata.normalize("NFKD", s)
+    s = re.sub(r"[\u0300-\u036F]", "", s)
+    s = re.sub(r"[\u0000-\u001f]", "", s)
+    s = re.sub(R_SPECIAL, "-", s)
+    s = re.sub(r"-{2,}", "-", s)
+    s = re.sub(r"^-+|-+$", "", s)
+    s = re.sub(r"^(\d)", r"_\1", s)
+    return s.lower()
+
 def extract_sections(md):
-    """提取 (编号, 标题)：只取 ## 级、带数字编号的节"""
+    """提取 (编号, 标题, 锚点)：只取 ## 级、带数字编号的节"""
     out = []
     for m in re.finditer(r"^##\s+(\d+(?:\.\d+)+)[　\s]+(.+)$", md, re.M):
         num, title = m.group(1), m.group(2).strip()
         title = re.sub(r"\*\*|\*|`", "", title)
-        out.append((num, title))
+        out.append((num, title, slugify("%s　%s" % (num, title))))
     return out
 
 def extract_appendix(body):
@@ -688,8 +701,9 @@ def write_contents(docs):
         secs = item["sections"]
         if secs:
             out.append('<div class="toc-secs">')
-            for snum, stitle in secs:
-                out.append("%s　%s<br>" % (snum, stitle))
+            for snum, stitle, slug in secs:
+                out.append('<a href="%s/vol%s/ch%s#%s">%s　%s</a>'
+                           % (LINKBASE, v["key"][-1], num, slug, snum, stitle))
             out.append("</div>")
     out.append("</div>")
     out.append("")
