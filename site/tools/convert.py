@@ -613,7 +613,15 @@ def render_block(name, pos, kw, body, volkey, imgdir):
             return ""
         # 带左侧竖线的引用块 -> 引文
         if "left" in (kw.get("stroke") or ""):
-            return "\n\n<blockquote class=\"book-quote\">\n\n%s\n\n</blockquote>\n\n" % text
+            # 段末的「（摘自……）」拆成独立署名
+            m = re.search(r"^(.*?)(（摘自[^（）]*）)\s*$", text, re.S)
+            if m:
+                main, cite = m.group(1).strip(), m.group(2).strip()[1:-1]
+                # HTML 块内不解析 markdown，手工转换斜体
+                cite = re.sub(r"\*([^*\n]+)\*", r"<em>\1</em>", cite)
+                return ('\n\n<blockquote class="book-quote">\n\n%s\n\n'
+                        "<cite>%s</cite>\n\n</blockquote>\n\n" % (main, cite))
+            return '\n\n<blockquote class="book-quote">\n\n%s\n\n</blockquote>\n\n' % text
         return "\n\n%s\n\n" % text
     if name == "figimg":
         path = unquote(pos[0]) if pos else ""

@@ -1449,3 +1449,112 @@ table.book-table code {
   .vp-doc .custom-block.info .custom-block-title { left: 1.1em; }
   .vp-doc .custom-block.warning { padding-left: 1.1em; }
 }
+
+/* ============================================================
+   边栏 / 引文：中性冷色系重制
+   ============================================================ */
+
+/* ---- 边栏：冷灰卡片 + 渐变小竖条标记 ---- */
+.vp-doc .custom-block.tip {
+  position: relative;
+  margin: 2.2em 0;
+  padding: 1.35em 1.55em 1.4em;
+  border: 1px solid #e4e8ee;
+  border-left: 1px solid #e4e8ee;
+  border-radius: 12px;
+  background: #f7f8fa;
+  box-shadow: 0 1px 2px rgba(25, 35, 50, 0.03);
+  overflow: visible;
+}
+
+.dark .vp-doc .custom-block.tip {
+  background: #1a1d23;
+  border-color: #2a303a;
+  box-shadow: none;
+}
+
+/* 移除旧的金褐色竖条 */
+.vp-doc .custom-block.tip::before { display: none !important; }
+
+.vp-doc .custom-block.tip .custom-block-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin: 0 0 0.72em;
+  padding: 0;
+  font-family: var(--book-sans);
+  font-size: calc(12.6px * var(--book-scale, 1));
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #46586c;
+}
+
+.dark .vp-doc .custom-block.tip .custom-block-title { color: #9fb0c4; }
+
+/* 标题前的渐变小竖条 */
+.vp-doc .custom-block.tip .custom-block-title::before {
+  content: "";
+  display: block !important;
+  width: 3px;
+  height: 13px;
+  flex: none;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #7ea6cc 0%, #4a76a0 100%);
+  transform: none;
+}
+
+.vp-doc .custom-block.tip p {
+  color: #3c4653;
+  font-size: calc(15.9px * var(--book-scale, 1));
+  line-height: 1.96;
+}
+
+.dark .vp-doc .custom-block.tip p { color: #b3bdcb; }
+
+/* ---- 引文：上下细线 + 独立署名 ---- */
+.vp-doc blockquote.book-quote {
+  position: relative;
+  margin: 2.6em 1.4em;
+  padding: 1.55em 0 1.4em;
+  border: none;
+  border-top: 1px solid var(--book-rule);
+  border-bottom: 1px solid var(--book-rule);
+  border-radius: 0;
+  background: none;
+  font-family: var(--book-kai);
+  font-size: calc(16.4px * var(--book-scale, 1));
+  line-height: 2.05;
+  color: #38434f;
+}
+
+.dark .vp-doc blockquote.book-quote {
+  color: #b0bccb;
+  border-color: #333b47;
+}
+
+.vp-doc blockquote.book-quote p {
+  margin: 0;
+  text-indent: 2em;
+  font-size: inherit;
+}
+
+.vp-doc blockquote.book-quote cite {
+  display: block;
+  margin-top: 1.05em;
+  font-family: var(--book-serif);
+  font-style: normal;
+  font-size: calc(12.9px * var(--book-scale, 1));
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+  color: var(--book-muted);
+  text-align: right;
+  text-indent: 0;
+}
+
+.dark .vp-doc blockquote.book-quote cite { color: #8c98a8; }
+
+@media (max-width: 640px) {
+  .vp-doc .custom-block.tip { padding: 1.15em 1.1em 1.2em; border-radius: 10px; }
+  .vp-doc blockquote.book-quote { margin: 2.2em 0.2em; padding: 1.3em 0; }
+  .vp-doc blockquote.book-quote cite { text-align: left; }
+}

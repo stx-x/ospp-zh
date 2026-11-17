@@ -1962,7 +1962,9 @@ Linux 的锁获取代码是一个宏（以避免在快路径上发生过程调�
 
 <blockquote class="book-quote">
 
-“在系统构想阶段就逐渐发现，我们以两种完全不同的方式使用信号量。这种差别如此显著，以致回过头看，人们不禁要问：把这两种方式说成是对同一组原语的运用，是否真的公平。一方面，我们把信号量用于互斥；另一方面，则是私有信号量。”（摘自 Dijkstra《The structure of the ’THE’-Multiprogramming System》，*Communications of the ACM*，第 11 卷第 5 期，1968 年 5 月。）
+“在系统构想阶段就逐渐发现，我们以两种完全不同的方式使用信号量。这种差别如此显著，以致回过头看，人们不禁要问：把这两种方式说成是对同一组原语的运用，是否真的公平。一方面，我们把信号量用于互斥；另一方面，则是私有信号量。”
+
+<cite>摘自 Dijkstra《The structure of the ’THE’-Multiprogramming System》，<em>Communications of the ACM</em>，第 11 卷第 5 期，1968 年 5 月。</cite>
 
 </blockquote>
 
