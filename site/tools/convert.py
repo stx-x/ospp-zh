@@ -8,7 +8,7 @@ Typst (自定义讲义模板) -> VitePress Markdown 转换器
 """
 import os, re, sys, glob, json, shutil, unicodedata
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from comment_map import LEAD, TRAIL
+from comment_map import LEAD, TRAIL, BLOCK
 
 BASE = "/"
 LINKBASE = "/ospp-zh"
@@ -215,8 +215,31 @@ CN = r"\u4e00-\u9fff"
 
 UNTRANSLATED = set()
 
+def translate_block_comments(body):
+    """翻译 /* ... */ 块注释，保留 * 对齐前缀"""
+    def repl(m):
+        inner = m.group(1)
+        if "\n" not in inner:
+            key = inner.strip()
+            return "/* %s */" % BLOCK[key] if key in BLOCK else m.group(0)
+        lines = []
+        for ln in inner.split("\n"):
+            mm = re.match(r"^(\s*\*\s*)(.*?)(\s*)$", ln)
+            if mm:
+                key = mm.group(2).strip()
+                if key in BLOCK:
+                    lines.append(mm.group(1) + BLOCK[key])
+                    continue
+                if key and re.search(r"[A-Za-z]", key) and not re.match(r"[\u4e00-\u9fff]", key):
+                    UNTRANSLATED.add(key)
+            lines.append(ln)
+        return "/*" + "\n".join(lines) + "*/"
+
+    return re.sub(r"/\*([\s\S]*?)\*/", repl, body)
+
 def translate_comments(body):
     """把代码块中的英文注释译为中文（映射表见 comment_map.py）"""
+    body = translate_block_comments(body)
     out = []
     for ln in body.split("\n"):
         # 整行注释

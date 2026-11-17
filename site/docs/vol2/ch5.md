@@ -1815,7 +1815,7 @@ Linux 的锁实现正是利用了这一点：在线程获取锁时无需等待�
 
 ```c
     struct mutex {
-        /* 1: unlocked, 0: locked, negative: locked, possible waiters */
+        /* 1：未加锁；0：已加锁；负数：已加锁且有等待者 */
         atomic_t          count;
         spinlock_t        wait_lock;
         struct list_head  wait_list;
@@ -1837,18 +1837,18 @@ Linux 的锁获取代码是一个宏（以避免在快路径上发生过程调�
 ```c
     for (;;) {
         /*
-         * Lets try to take the lock again - this is needed even if
-         * we get here for the first time (shortly after failing to
-         * acquire the lock), to make sure that we get a wakeup once
-         * it’s unlocked. Later on, if we sleep, this is the
-         * operation that gives us the lock. We xchg it to -1, so
-         * that when we release the lock, we properly wake up the
-         * other waiters:
+         * 再次尝试获取锁——即便我们是
+         * 第一次走到这里（刚获取锁失败后
+         * 不久）也需要这一步，以确保锁被
+         * 释放时能收到唤醒。之后若我们睡下，
+         * 正是这个操作把锁交给我们。把它 xchg 成 -1，
+         * 这样在释放锁时，才能正确唤醒
+         * 其他等待者：
          */
         if (atomic_xchg(&lock->count, -1) == 1)
             break;
 
-        /* didn’t get the lock, go to sleep: */
+        /* 没能拿到锁，进入睡眠： */
         ...
     }
 ```
@@ -1858,7 +1858,7 @@ Linux 的锁获取代码是一个宏（以避免在快路径上发生过程调�
 最终，线程跳出循环，这意味着它找到了一个锁处于 FREE 的时刻（`lock->count = 1`），并在这个时刻把锁置为“已加锁、可能有等待者”的状态（即令 `count = -1`）。此时线程已持有锁，随后它做清理：若没有其他等待者，就把 `count` 重置为 0。
 
 ```c
-    /* set it to 0 if there are no waiters left: */
+    /* 若已无等待者，则置为 0： */
     if (list_empty(&lock->wait_list))
         atomic_set(&lock->count, 0);
 ```
@@ -1879,7 +1879,7 @@ Linux 的锁获取代码是一个宏（以避免在快路径上发生过程调�
 ```c
     spin_lock_mutex(&lock->wait_lock, flags);
         /*
-         * Unlock lock here
+         * 在此处解锁
          */
     atomic_set(&lock->count, 1);
     if (!list_empty(&lock->wait_list)) {

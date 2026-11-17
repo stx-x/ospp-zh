@@ -252,3 +252,18 @@ TRAIL = {
 "B4": "B4",
 "B5": "B5",
 }
+
+# 块注释 /* ... */ 逐行映射（保留行首 * 前缀）
+BLOCK = {
+"1: unlocked, 0: locked, negative: locked, possible waiters": "1：未加锁；0：已加锁；负数：已加锁且有等待者",
+"Lets try to take the lock again - this is needed even if": "再次尝试获取锁——即便我们是",
+"we get here for the first time (shortly after failing to": "第一次走到这里（刚获取锁失败后",
+"acquire the lock), to make sure that we get a wakeup once": "不久）也需要这一步，以确保锁被",
+"it’s unlocked. Later on, if we sleep, this is the": "释放时能收到唤醒。之后若我们睡下，",
+"operation that gives us the lock. We xchg it to -1, so": "正是这个操作把锁交给我们。把它 xchg 成 -1，",
+"that when we release the lock, we properly wake up the": "这样在释放锁时，才能正确唤醒",
+"other waiters:": "其他等待者：",
+"didn’t get the lock, go to sleep:": "没能拿到锁，进入睡眠：",
+"set it to 0 if there are no waiters left:": "若已无等待者，则置为 0：",
+"Unlock lock here": "在此处解锁",
+}

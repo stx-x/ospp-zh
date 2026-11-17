@@ -1340,3 +1340,112 @@ table.book-table code {
 }
 
 .vp-doc blockquote.book-quote p { text-indent: 0; margin: 0; }
+
+/* ============================================================
+   一问一答：卡片 + 浮起胶囊标签
+   ============================================================ */
+
+/* ---- 例（提问）：浅靛蓝卡片，标签浮在卡片上边缘 ---- */
+.vp-doc .custom-block.info {
+  position: relative;
+  margin: 2.6em 0 0.5em;
+  padding: 1.45em 1.6em 1.4em;
+  border: none;
+  border-radius: 15px;
+  background: linear-gradient(152deg, #f6fafe 0%, #eaf1f9 100%);
+  box-shadow:
+    0 1px 2px rgba(40, 70, 110, 0.04),
+    0 12px 28px -20px rgba(40, 70, 110, 0.32);
+  overflow: visible;
+}
+
+.dark .vp-doc .custom-block.info {
+  background: linear-gradient(152deg, #1e2530 0%, #1a212b 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.vp-doc .custom-block.info .custom-block-title {
+  position: absolute;
+  top: 0;
+  left: 1.55em;
+  transform: translateY(-52%);
+  margin: 0;
+  padding: 2px 13px 3px;
+  border-radius: 999px;
+  background: var(--book-accent);
+  color: #fff;
+  font-family: var(--book-sans);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  box-shadow: 0 2px 8px rgba(47, 93, 138, 0.28);
+}
+
+.vp-doc .custom-block.info .custom-block-title::before { display: none !important; }
+
+.vp-doc .custom-block.info p {
+  color: #253243;
+  font-size: calc(16.5px * var(--book-scale, 1));
+  line-height: 1.98;
+}
+
+.dark .vp-doc .custom-block.info p { color: #c3cdda; }
+
+/* ---- 答：无底，虚线连接，标签为浅色胶囊 ---- */
+.vp-doc .custom-block.warning {
+  position: relative;
+  margin: 0 0 2.4em;
+  padding: 0.1em 0.4em 0.1em 1.5em;
+  border: none;
+  border-left: 2px dashed #ccd6e2;
+  border-radius: 0;
+  background: transparent;
+  color: #3f4a58;
+}
+
+.dark .vp-doc .custom-block.warning {
+  border-left-color: #39424f;
+  color: #a9b4c2;
+}
+
+.vp-doc .custom-block.warning .custom-block-title {
+  display: inline-block;
+  margin: 0 0 0.6em;
+  padding: 1px 11px 2px;
+  border-radius: 999px;
+  background: rgba(110, 138, 170, 0.11);
+  color: #6c7f96;
+  font-family: var(--book-sans);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+}
+
+.dark .vp-doc .custom-block.warning .custom-block-title {
+  background: rgba(120, 150, 185, 0.14);
+  color: #93a5ba;
+}
+
+.vp-doc .custom-block.warning .custom-block-title::before { display: none !important; }
+
+.vp-doc .custom-block.warning p {
+  font-size: calc(15.9px * var(--book-scale, 1));
+  line-height: 1.98;
+}
+
+/* 问答节奏：问与答之间收紧，答之后留白 */
+.vp-doc .custom-block.info + .custom-block.warning { margin-top: 0; }
+
+@media (max-width: 640px) {
+  .vp-doc .custom-block.info {
+    padding: 1.3em 1.1em 1.25em;
+    border-radius: 13px;
+    margin-top: 2.3em;
+  }
+  .vp-doc .custom-block.info .custom-block-title { left: 1.1em; }
+  .vp-doc .custom-block.warning { padding-left: 1.1em; }
+}
