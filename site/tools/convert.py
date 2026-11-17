@@ -206,6 +206,21 @@ def typst_math(src):
     s = re.sub(r"\s{2,}", " ", s).strip()
     return s
 
+CN = r"\u4e00-\u9fff"
+
+def normalize_cn(s):
+    """中文排版规范化：全角引号、中英间距。仅在中文占主导时执行。"""
+    if len(re.findall(r"[" + CN + "]", s)) < 3:
+        return s
+    # 成对 ASCII 双引号 -> 中文引号
+    s = re.sub(r'"([^"\n]{1,120})"', lambda m: "\u201c" + m.group(1) + "\u201d", s)
+    # 中英（含数字）之间补空格
+    s = re.sub(r"([" + CN + r"])([A-Za-z0-9])", r"\1 \2", s)
+    s = re.sub(r"([A-Za-z0-9])([" + CN + r"])", r"\1 \2", s)
+    # 收拢多余空格
+    s = re.sub(r" {2,}", " ", s)
+    return s
+
 def inline_html(s):
     """Typst 行内 -> HTML 片段（用于 HTML 块内部：题注、表格单元格）"""
     s, store = protect(s)
@@ -233,6 +248,7 @@ def inline_html(s):
             return "<code>" + t[1:-1].replace("<", "&lt;") + "</code>"
         inner = typst_math(t[1:-1])
         return r"\(" + inner + r"\)"
+    s = normalize_cn(s)
     s = re.sub(r"\x00(\d+)\x00", rep, s)
     return s
 
@@ -264,6 +280,7 @@ def inline_md(s):
             return t
         inner = typst_math(t[1:-1])
         return "$" + inner + "$"
+    s = normalize_cn(s)
     s = re.sub(r"\x00(\d+)\x00", rep, s)
     return s
 
