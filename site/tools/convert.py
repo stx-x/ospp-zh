@@ -321,7 +321,7 @@ def inline_md(s):
     def _text(m):
         args, body = m.group(1), m.group(2)
         if 'weight: "bold"' in args:
-            return "**" + body + "**"
+            return "<strong>" + body + "</strong>"
         return body
     s = re.sub(r"#text\(([^()]*)\)\[([^\]]*)\]", _text, s)
     for a, b in [(r"\#", "#"), (r"\$", "$"), (r"\_", "_"), (r"\@", "@"),
@@ -333,7 +333,7 @@ def inline_md(s):
         ital.append(m.group(1))
         return "\x01%d\x01" % (len(ital) - 1)
     s = re.sub(r"(?<![A-Za-z0-9_])_([^_\n]{1,300}?)_(?![A-Za-z0-9_])", _it, s)
-    s = re.sub(r"\*([^*\n]{1,300}?)\*", r"**\1**", s)
+    s = re.sub(r"\*([^*\n]{1,300}?)\*", r"<strong>\1</strong>", s)
     s = re.sub(r"\x01(\d+)\x01", lambda m: "*" + ital[int(m.group(1))] + "*", s)
     def rep(m):
         t = store[int(m.group(1))]
