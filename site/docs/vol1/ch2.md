@@ -235,11 +235,11 @@ title: "第 2 章　内核抽象"
 <div class="code-cap"><span class="code-label">图 2.7</span>一个简单的 C 程序，其输出说明了在物理内存中执行与在虚拟内存中执行的区别。同时运行这个程序的多个副本时，输出不会改变。</div>
 
 ```c
-int staticVar = 0;    // a static variable
+int staticVar = 0;    // 一个静态变量
 main() {
     staticVar += 1;
 
-    // sleep causes the program to wait for x seconds
+    // sleep 使程序等待 x 秒
     sleep(10);
     printf ("Address: %x; Value: %d\n", &staticVar, staticVar);
 }
@@ -565,17 +565,17 @@ Motorola 88000 属于后者。88000 是一种早期的流水线体系结构；�
 <div class="code-cap"><span class="code-label">图 2.14</span>x86 处理器上文件系统 <code>open</code> 系统调用的用户级库存根。<code>SysCallOpen</code> 是要运行的那个特定系统调用的代码。<code>TrapCode</code> 是系统调用处理程序在 x86 中断向量表中的索引。</div>
 
 ```asm
- // We assume that the caller put the filename onto the stack,
- // using the standard calling convention for the x86.
+ // 假定调用者已把文件名压入栈，
+ // 使用 x86 的标准调用约定。
 
  open:
- // Put the code for the system call we want into %eax.
+ // 把要用的系统调用号放入 %eax。
      movl #SysCallOpen, %eax
 
- // Trap into the kernel.
+ // 陷入内核。
      int #TrapCode
 
- // Return to the caller; the kernel puts the return value in %eax.
+ // 返回调用者；内核把返回值放在 %eax 中。
      ret
 
 ```
@@ -604,39 +604,39 @@ Motorola 88000 属于后者。88000 是一种早期的流水线体系结构；�
  int KernelStub_Open() {
      char *localCopy[MaxFileNameSize + 1];
 
- // Check that the stack pointer is valid and that the arguments are stored at
- // valid addresses.
+ // 检查栈指针是否有效，并确认参数存放在
+ // 有效地址上。
 
      if (!validUserAddressRange(userStackPointer, userStackPointer + size of arguments))
          return error_code;
 
- // Fetch pointer to file name from user stack and convert it to a kernel pointer.
+ // 从用户栈取出文件名指针，并转换为内核指针。
 
      filename = VirtualToKernel(userStackPointer);
 
- // Make a local copy of the filename.  This prevents the application
- // from changing the name surreptitiously.
+ // 把文件名复制到本地。这样可以防止应用程序
+ // 偷偷篡改文件名。
 
- // The string copy needs to check each address in the string before use to make sure
- // it is valid.
+ // 字符串复制必须先检查串中每个地址，确认
+ // 它有效。
 
- // The string copy terminates after it copies MaxFileNameSize to ensure we
- // do not overwrite our internal buffer.
+ // 字符串复制在拷贝 MaxFileNameSize 个字符后终止，以确保我们
+ // 不会覆盖内部缓冲区。
 
      if (!VirtualToKernelStringCopy(filename, localCopy, MaxFileNameSize))
          return error_code;
 
- // Make sure the local copy of the file name is null terminated.
+ // 确保本地副本以空字符结尾。
 
      localCopy[MaxFileNameSize] = 0;
 
- // Check if the user is permitted to access this file.
+ // 检查用户是否有权访问该文件。
 
      if (!UserFileAccessPermitted(localCopy, current_process)
          return error_code;
 
- // Finally, call the actual routine to open the file.  This returns a file
- // handle on success, or an error code on failure.
+ // 最后调用真正打开文件的例程。成功时返回文件
+ // 句柄；失败时返回错误码。
 
      return Kernel_Open(localCopy);
  }
@@ -671,8 +671,8 @@ Motorola 88000 属于后者。88000 是一种早期的流水线体系结构；�
 
 ```c
     start(arg1, arg2) {
-        main(arg1, arg2);  // Call program main.
-        exit();     // If main returns, call exit.
+        main(arg1, arg2);  // 调用程序 main。
+        exit();     // 若 main 返回，调用 exit。
     }
 
 ```

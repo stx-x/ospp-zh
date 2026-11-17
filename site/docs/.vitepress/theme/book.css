@@ -1062,3 +1062,281 @@ table.book-table code {
   .toc-ch { flex-wrap: wrap; }
   .toc-ch-en { margin-left: 0; text-align: left; width: 100%; padding-left: 3.2em; }
 }
+
+/* ============================================================
+   现代风重制：代码块 / 边栏 / 例答
+   ============================================================ */
+
+/* ---------- 代码块：卡片式 ---------- */
+.vp-doc div[class*="language-"] {
+  position: relative;
+  margin: 1.9em 0;
+  border-radius: 10px;
+  border: 1px solid var(--book-rule);
+  background: #fcfcfa;
+  box-shadow: 0 1px 2px rgba(22, 32, 46, 0.04), 0 6px 16px -12px rgba(22, 32, 46, 0.14);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.dark .vp-doc div[class*="language-"] {
+  background: #171a1f;
+  border-color: #2a303a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.vp-doc div[class*="language-"]:hover {
+  border-color: #c2ccd8;
+  box-shadow: 0 2px 4px rgba(22, 32, 46, 0.05), 0 12px 28px -16px rgba(22, 32, 46, 0.22);
+}
+
+.dark .vp-doc div[class*="language-"]:hover { border-color: #3a4350; }
+
+/* 语言标签 */
+.vp-doc div[class*="language-"]::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  padding: 4px 11px 5px;
+  font-family: var(--book-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--book-faint);
+  background: rgba(120, 135, 155, 0.08);
+  border-bottom-right-radius: 8px;
+  pointer-events: none;
+}
+
+.vp-doc div.language-c::before { content: "C"; }
+.vp-doc div.language-asm::before { content: "ASM"; }
+.vp-doc div.language-text::before { content: "伪代码"; letter-spacing: 0.1em; }
+.dark .vp-doc div[class*="language-"]::before { background: rgba(150, 170, 195, 0.1); }
+
+.vp-doc div[class*="language-"] pre {
+  margin: 0 !important;
+  padding: 2.05em 1.15em 1.05em !important;
+  background: transparent !important;
+  font-family: var(--book-mono);
+  font-size: calc(13.2px * var(--book-scale, 1));
+  line-height: 1.72;
+  overflow-x: auto;
+}
+
+.vp-doc div[class*="language-"] code {
+  font-family: var(--book-mono);
+  font-size: inherit;
+  background: transparent;
+  padding: 0;
+}
+
+/* 复制按钮：常驻低调 */
+.copy-btn {
+  top: 6px;
+  right: 8px;
+  z-index: 3;
+  padding: 2px 8px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--book-faint);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--book-rule);
+  border-radius: 5px;
+  opacity: 0;
+  backdrop-filter: blur(4px);
+}
+
+.dark .copy-btn {
+  background: rgba(30, 36, 45, 0.85);
+  border-color: #39414d;
+  color: var(--book-muted);
+}
+
+.vp-doc div[class*="language-"]:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { color: var(--book-accent); border-color: var(--book-accent); }
+
+/* 代码题注 */
+.code-cap {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  margin: 1.9em 0 -0.85em;
+  padding: 0 0.2em;
+  font-family: var(--book-serif);
+  font-size: calc(13.6px * var(--book-scale, 1));
+  line-height: 1.8;
+  color: #3f4a57;
+}
+
+.dark .code-cap { color: #a4b0c0; }
+
+/* ---------- 边栏：卡片 ---------- */
+.vp-doc .custom-block.tip {
+  position: relative;
+  margin: 2.1em 0;
+  padding: 1.2em 1.5em 1.25em;
+  border: 1px solid rgba(190, 172, 146, 0.42);
+  border-left: 1px solid rgba(190, 172, 146, 0.42);
+  border-radius: 12px;
+  background: linear-gradient(168deg, #fbf8f2 0%, #f8f5ee 100%);
+  box-shadow: 0 1px 2px rgba(120, 100, 70, 0.05), 0 8px 20px -16px rgba(120, 100, 70, 0.3);
+  overflow: hidden;
+}
+
+.dark .vp-doc .custom-block.tip {
+  background: linear-gradient(168deg, #23252b 0%, #1e2026 100%);
+  border-color: rgba(140, 125, 100, 0.3);
+  box-shadow: none;
+}
+
+.vp-doc .custom-block.tip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #d3b992 0%, #a8875e 100%);
+}
+
+.vp-doc .custom-block.tip .custom-block-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  margin: 0 0 0.75em;
+  padding: 0;
+  font-family: var(--book-sans);
+  font-size: calc(13.8px * var(--book-scale, 1));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #7a6244;
+}
+
+.dark .vp-doc .custom-block.tip .custom-block-title { color: #c9ae86; }
+
+.vp-doc .custom-block.tip .custom-block-title::before {
+  content: "";
+  display: block !important;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: #b99a72;
+  transform: rotate(45deg);
+  flex: none;
+}
+
+.dark .vp-doc .custom-block.tip .custom-block-title::before { background: #b99a72; }
+
+.vp-doc .custom-block.tip p {
+  color: #3c4450;
+  font-size: calc(16.1px * var(--book-scale, 1));
+  line-height: 1.96;
+}
+
+.dark .vp-doc .custom-block.tip p { color: #b6c0cd; }
+
+/* ---------- 例：极简卡片 ---------- */
+.vp-doc .custom-block.info {
+  position: relative;
+  margin: 1.9em 0;
+  padding: 1em 1.4em 1em 1.5em;
+  border: none;
+  border-left: 2.5px solid #c9a882;
+  border-radius: 0 10px 10px 0;
+  background: rgba(201, 168, 130, 0.055);
+}
+
+.dark .vp-doc .custom-block.info {
+  background: rgba(201, 168, 130, 0.07);
+  border-left-color: #9c7f5c;
+}
+
+.vp-doc .custom-block.info .custom-block-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.5em;
+  font-size: calc(12.4px * var(--book-scale, 1));
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #9a7648;
+}
+
+.dark .vp-doc .custom-block.info .custom-block-title { color: #c2a173; }
+
+.vp-doc .custom-block.info .custom-block-title::before {
+  content: "";
+  display: block !important;
+  width: 14px;
+  height: 1px;
+  background: #c9a882;
+}
+
+/* ---------- 答：极简卡片 ---------- */
+.vp-doc .custom-block.warning {
+  position: relative;
+  margin: 0.9em 0 1.9em;
+  padding: 1em 1.4em 1em 1.5em;
+  border: none;
+  border-left: 2.5px solid #b9c4d1;
+  border-radius: 0 10px 10px 0;
+  background: rgba(150, 165, 185, 0.06);
+  color: #46505c;
+}
+
+.dark .vp-doc .custom-block.warning {
+  background: rgba(150, 165, 185, 0.08);
+  border-left-color: #4d5866;
+  color: #a9b3c0;
+}
+
+.vp-doc .custom-block.warning .custom-block-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.45em;
+  font-size: calc(12.4px * var(--book-scale, 1));
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--book-muted);
+}
+
+.vp-doc .custom-block.warning .custom-block-title::before {
+  content: "";
+  display: block !important;
+  width: 14px;
+  height: 1px;
+  background: #b9c4d1;
+}
+
+.dark .vp-doc .custom-block.warning .custom-block-title::before { background: #4d5866; }
+
+/* 小屏微调 */
+@media (max-width: 640px) {
+  .vp-doc div[class*="language-"] pre { font-size: 12.4px; padding: 1.95em 0.9em 0.9em !important; }
+  .vp-doc .custom-block.tip { padding: 1em 1.1em 1.05em; border-radius: 10px; }
+  .vp-doc .custom-block.info,
+  .vp-doc .custom-block.warning { padding: 0.9em 1em 0.9em 1.1em; }
+}
+
+/* ---------- 引文块 ---------- */
+.vp-doc blockquote.book-quote {
+  margin: 2.2em 0;
+  padding: 1.15em 1.5em;
+  border-left: 3px solid var(--book-accent);
+  border-radius: 0 10px 10px 0;
+  background: rgba(47, 93, 138, 0.045);
+  font-family: var(--book-kai);
+  font-size: calc(16.2px * var(--book-scale, 1));
+  line-height: 1.95;
+  color: #3b4a5a;
+}
+
+.dark .vp-doc blockquote.book-quote {
+  background: rgba(80, 120, 160, 0.08);
+  color: #a9b5c4;
+}
+
+.vp-doc blockquote.book-quote p { text-indent: 0; margin: 0; }

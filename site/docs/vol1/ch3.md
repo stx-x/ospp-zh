@@ -147,17 +147,17 @@ CreateProcess 要执行哪些步骤？正如上一章所解释的，内核需要
 <div class="code-cap"><span class="code-label">图 3.3</span>使用 Windows CreateProcess 系统调用的示例节选。前两个参数指定程序及其参数；其余参数涉及进程运行时环境的方方面面。</div>
 
 ```c
-// Start the child process
-if (!CreateProcess(NULL,   // No module name (use command line)
-    argv[1],        // Command line
-    NULL,           // Process handle not inheritable
-    NULL,           // Thread handle not inheritable
-    FALSE,          // Set handle inheritance to FALSE
-    0,              // No creation flags
-    NULL,           // Use parent’s environment block
-    NULL,           // Use parent’s starting directory
-    &si,            // Pointer to STARTUPINFO structure
-    &pi )           // Pointer to PROCESS_INFORMATION structure
+// 启动子进程
+if (!CreateProcess(NULL,   // 无模块名（使用命令行）
+    argv[1],        // 命令行
+    NULL,           // 进程句柄不可继承
+    NULL,           // 线程句柄不可继承
+    FALSE,          // 句柄继承设为 FALSE
+    0,              // 无创建标志
+    NULL,           // 使用父进程的环境块
+    NULL,           // 使用父进程的起始目录
+    &si,            // 指向 STARTUPINFO 结构的指针
+    &pi )           // 指向 PROCESS_INFORMATION 结构的指针
 )
 ```
 
@@ -197,10 +197,10 @@ UNIX fork 有一个奇特之处：这个系统调用会返回**两次**——一
 ```c
 int child_pid = fork();
 
-if (child_pid == 0) {   // I’m the child process.
+if (child_pid == 0) {   // 我是子进程。
     printf("I am process \#%d\n", getpid());
     return 0;
-} else {                // I’m the parent process.
+} else {                // 我是父进程。
     printf("I am the parent of process \#%d\n", child_pid);
     return 0;
 }
@@ -282,11 +282,11 @@ UNIX 的 I/O 接口包含以下几条基本思想：
 然而，UNIX 常常运行在多用户、多应用程序的环境中，在这种场合下，系统调用设计的问题会变得微妙得多。假设我们不用 UNIX 的这套接口，而是用三个完全独立的函数，分别用来检测文件是否存在、创建文件、打开文件。假定用户拥有检测、打开或创建该文件的权限，下面这段代码能正确工作吗？
 
 ```c
-    if (!exists(file)) {    // If the file doesn’t exist create it.
-    // Are we guaranteed the file doesn’t exist?
+    if (!exists(file)) {    // 若文件不存在则创建它。
+    // 我们能保证这个文件一定不存在吗？
         create(file);
     }
-    // Are we guaranteed the file does exist?
+    // 我们能保证这个文件一定存在吗？
     open(file);
 
 ```
@@ -345,20 +345,20 @@ UNIX 用一个全能的、原子的 `open` 来解决这个问题：先检测文�
      char *prog = NULL;
      char **args = NULL;
 
-     // Read the input a line at a time, and parse each line into the program
-     // name and its arguments. End loop if we’ve reached the end of the input.
+     // 逐行读取输入，把每一行解析成程序
+     // 名与参数。若已读到输入末尾，则结束循环。
      while (readAndParseCmdLine(&prog, &args)) {
 
-         // Create a child process to run the command.
+         // 创建一个子进程来运行该命令。
          int child_pid = fork();
 
          if (child_pid == 0) {
-             // I’m the child process.
-             // Run program with the parent’s input and output.
+             // 我是子进程。
+             // 用父进程的输入输出运行程序。
              exec(prog, args);
-             // NOT REACHED
+             // 不会执行到这里
          } else {
-             // I’m the parent; wait for the child to complete.
+             // 我是父进程；等待子进程结束。
              wait(child_pid);
              return 0;
          }
@@ -433,12 +433,12 @@ UNIX 用一个全能的、原子的 `open` 来解决这个问题：先检测文�
 
      // ..compute..
 
-     // Put the request into the buffer.
+     // 把请求放入缓冲区。
 
-     // Send the buffer to the server.
+     // 把缓冲区发给服务器。
      write(output, request, RequestSize);
 
-     // Wait for response.
+     // 等待响应。
      read(input, reply, ReplySize);
 
      // ..compute..
@@ -447,14 +447,14 @@ UNIX 用一个全能的、原子的 `open` 来解决这个问题：先检测文�
      char request[RequestSize];
      char reply[ReplySize];
 
-     // Loop waiting for requests.
+     // 循环等待请求。
      while (1) {
-         // Read incoming command.
+         // 读取到达的命令。
          read(input, request, RequestSize);
 
-         // Do operation.
+         // 执行操作。
 
-         // Send result.
+         // 送回结果。
          write(output, reply, ReplySize);
      }
 
@@ -478,15 +478,15 @@ UNIX 用一个全能的、原子的 `open` 来解决这个问题：先检测文�
      FileDescriptor clientInput[NumClients];
      FileDescriptor clientOutput[NumClients];
 
-     // Loop waiting for a request from any client.
+     // 循环等待来自任一客户端的请求。
      while (fd = select(clientInput, NumClients) {
 
-         // Read incoming command from a specific client.
+         // 从指定客户端读取到达的命令。
          read(clientInput[fd], request, RequestSize);
 
-         // Do operation.
+         // 执行操作。
 
-         // Send result.
+         // 送回结果。
          write(clientOutput[fd], reply, ReplySize);
      }
 

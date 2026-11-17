@@ -25,11 +25,11 @@ title: "第 5 章　共享对象的同步访问"
 + **编译器和处理器硬件可能对指令重排序。** 现代编译器和硬件会重排序指令以提高性能。对单线程程序而言，这种重排序一般是不可见的；编译器和处理器会小心地保证单一指令序列内部（也就是一个线程内部）的依赖关系得到保持。然而，当多个线程通过访问共享变量相互作用时，重排序就可能变得可见。例如，考虑下面这段把 `q` 计算为 `p` 的函数值的代码：
 
 ```c
-  // Thread 1
+  // 线程 1
   p = someComputation();
   pInitialized = true;
 
-  // Thread 2
+  // 线程 2
   while(!pInitialized);
   q = anotherComputation(p);
 ```
@@ -227,11 +227,11 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 **解法 1。** 基本想法是让室友在去商店之前，先在冰箱上留一张便条。要留下这张便条，最简单的做法——在我们这个可以对共享内存做原子装入与存储的编程模型下——就是在去买牛奶时设置一个标志，并在去买牛奶之前检查这个标志。每个线程可以执行如下代码：
 
 ```c
-    if (milk==0) {       // if no milk
-        if (note==0) {   // if no note
-            note = 1;    // leave note
-            milk++;      // buy milk
-            note = 0;    // remove note
+    if (milk==0) {       // 如果没有牛奶
+        if (note==0) {   // 如果没有便条
+            note = 1;    // 留下便条
+            milk++;      // 买牛奶
+            note = 0;    // 撕掉便条
         }
     }
 ```
@@ -239,7 +239,7 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 不幸的是，这种实现可能破坏安全性。例如，第一个线程可能把代码执行到检查牛奶数量那一步（含这一步）之后被切换出去。然后，第二个线程可能跑完这整段代码并买了牛奶。最后，第一个线程被重新调度，看到 `note` 为零，于是留下便条、再买一份牛奶、再撕掉便条，系统里就剩下 `milk == 2`。
 
 ```c
-    // Thread A                      // Thread B
+    // 线程 A                      // 线程 B
     if (milk==0) {
                                      if (milk==0) {
                                          if (note==0) {
@@ -266,25 +266,25 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 <div class="code-cap">路径 A</div>
 
 ```c
- noteA = 1;         // leave note
- if (noteB==0) {    // if no note  A1
-     if (milk==0) { // if no milk  A2
-         milk++;    // buy milk    A3
+ noteA = 1;         // 留下便条
+ if (noteB==0) {    // 如果没有便条  A1
+     if (milk==0) { // 如果没有牛奶  A2
+         milk++;    // 买牛奶    A3
      }
  }
- noteA = 0;         // remove note A
+ noteA = 0;         // 撕掉便条 A
 ```
 
 <div class="code-cap">路径 B</div>
 
 ```c
- noteB = 1;         // leave note
- if (noteA==0) {    // if no note  B1
-     if (milk==0) { // if no milk  B2
-         milk++;    // buy milk    B3
+ noteB = 1;         // 留下便条
+ if (noteA==0) {    // 如果没有便条  B1
+     if (milk==0) { // 如果没有牛奶  B2
+         milk++;    // 买牛奶    B3
      }              //             B4
  }                  //             B5
- noteB = 0;         // remove note
+ noteB = 0;         // 撕掉便条
 ```
 
 如果第一个线程执行路径 A 的代码，第二个线程执行路径 B 的代码，这个协议就是安全的；让每个线程在决定买牛奶之前先写下便条（“我可能会去买牛奶”），就确保了安全性：最多只有一个线程去买牛奶。
@@ -310,26 +310,26 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 <div class="code-cap">路径 A</div>
 
 ```c
- noteA = 1;         // leave note A
- while (noteB==1) { // wait for no note B
-     ;              // spin
+ noteA = 1;         // 留下便条 A
+ while (noteB==1) { // 等待便条 B 不存在
+     ;              // 自旋
  }
- if (milk==0) {     // if no milk M
-     milk++;        // buy milk
+ if (milk==0) {     // 如果没有牛奶 M
+     milk++;        // 买牛奶
  }
- noteA = 0;         // remove note A
+ noteA = 0;         // 撕掉便条 A
 ```
 
 <div class="code-cap">路径 B</div>
 
 ```c
- noteB = 1;          // leave note B
- if (noteA==0) {     // if no note A
-     if (milk==0) {  // if no milk
-         milk++;     // buy milk
+ noteB = 1;          // 留下便条 B
+ if (noteA==0) {     // 如果没有便条 A
+     if (milk==0) {  // 如果没有牛奶
+         milk++;     // 买牛奶
      }               //
  }                   //
- noteB = 0;          // remove note B
+ noteB = 0;          // 撕掉便条 B
 ```
 
 我们可以用与证明解法 2 类似的论证来说明解法 3 是安全的。
@@ -365,8 +365,8 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 ```c
     Kitchen::buyIfNeeded() {
         lock.acquire();
-        if (milk == 0) {     // if no milk
-            milk++;          // buy milk
+        if (milk == 0) {     // 如果没有牛奶
+            milk++;          // 买牛奶
         }
         lock.release();
     }
@@ -454,8 +454,8 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 
 ```c
     lock.acquire();
-    if (milk == 0) {     // if no milk
-        milk++;          // buy milk
+    if (milk == 0) {     // 如果没有牛奶
+        milk++;          // 买牛奶
     }
     lock.release();
 ```
@@ -472,9 +472,9 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
      char *p;
 
      heaplock.acquire();
-  // Code for single-threaded malloc()
-  // p = allocate block of memory
-  //     of size n.
+  // 单线程 malloc() 的代码
+  // p = 分配一块内存
+  //     大小为 n。
      heaplock.release();
      return p;
  }
@@ -482,8 +482,8 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
  void free (char *p) {
 
      heaplock.acquire();
-  // Code for single-threaded free()
-  // Put p back on free list.
+  // 单线程 free() 的代码
+  // 把 p 放回空闲链表。
 
      heaplock.release();
 
@@ -524,15 +524,15 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 <div class="code-cap"><span class="code-label">图 5.3</span>线程安全的有界队列。为便于实现，我们假定队列存放的是整数（而不是任意对象），并且存放的元素总数不大。</div>
 
 ```c
- // Thread-safe queue interface
+ // 线程安全队列接口
 
  const int MAX = 10;
 
  class TSQueue {
-   // Synchronization variables
+   // 同步变量
      Lock lock;
 
-   // State variables
+   // 状态变量
      int items[MAX];
      int front;
      int nextEmpty;
@@ -544,14 +544,14 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
      bool tryRemove(int *item);
  };
 
- // Initialize the queue to empty
- // and the lock to free.
+ // 把队列初始化为空
+ // 锁置为可用。
  TSQueue::TSQueue() {
      front = nextEmpty = 0;
  }
 
- // Try to insert an item. If the queue is
- // full, return false; otherwise return true.
+ // 尝试插入数据项。若队列
+ // 已满，返回 false；否则返回 true。
  bool
  TSQueue::tryInsert(int item) {
      bool success = false;
@@ -566,8 +566,8 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
      return success;
  }
 
- // Try to remove an item. If the queue is
- // empty, return false; otherwise return true.
+ // 尝试取出数据项。若队列
+ // 为空，返回 false；否则返回 true。
  bool
  TSQueue::tryRemove(int *item) {
      bool success = false;
@@ -646,31 +646,31 @@ TSQueue 的实现定义了一个环形队列，数据存放在固定大小的数
 
 ```c
  // TSQueueMain.cc
- //   Test code for TSQueue.
+ //   TSQueue 的测试代码。
 
  int main(int argc, char **argv) {
      TSQueue *queues[3];
      sthread_t workers[3];
      int i, j;
 
-     // Start worker threads to insert.
+     // 启动工作线程执行插入。
      for (i = 0; i < 3; i++) {
          queues[i] = new TSQueue();
          thread_create_p(&workers[i],
                     putSome, queues[i]);
      }
 
-     // Wait for some items to be put.
+     // 等一些数据项被放入。
      thread_join(workers[0]);
 
-     // Remove 20 items from each queue.
+     // 从每个队列各取出 20 个数据项。
      for (i = 0; i < 3; i++) {
          printf("Queue %d:\n", i);
          testRemoval(&queues[i]);
      }
  }
 
- // Insert 50 items into a queue.
+ // 向队列插入 50 个数据项。
  void *putSome(void *p) {
      TSQueue *queue = (TSQueue *)p;
      int i;
@@ -681,7 +681,7 @@ TSQueue 的实现定义了一个环形队列，数据存放在固定大小的数
      return NULL;
  }
 
- // Remove 20 items from a queue.
+ // 从队列取出 20 个数据项。
  void testRemoval(TSQueue *queue) {
      int i, item;
 
@@ -752,14 +752,14 @@ TSQueue::remove() {
 SharedObject::someMethodThatWaits() {
     lock.acquire();
 
-// Read and/or write shared state here.
+// 在此读和/或写共享状态。
 
     while (!testOnSharedState()) {
         cv.wait(&lock);
     }
     assert(testOnSharedState());
 
-// Read and/or write shared state here.
+// 在此读和/或写共享状态。
 
     lock.release();
 }
@@ -767,11 +767,11 @@ SharedObject::someMethodThatWaits() {
 SharedObject::someMethodThatSignals() {
     lock.acquire();
 
-// Read and/or write shared state here.
+// 在此读和/或写共享状态。
 
-// If state has changed in a way that
-// could allow another thread to make
-// progress, signal (or broadcast).
+// 若状态发生了变化，且这种变化
+// 可能让另一个线程取得
+// 取得进展，就 signal（或 broadcast）。
 
     cv.signal();
 
@@ -853,12 +853,12 @@ Mesa 语义的使用要广泛得多，但有人认为，发信号与恢复等待
 
 ```c
 class BBQ{
-  // Synchronization variables
+  // 同步变量
     Lock lock;
     CV itemAdded;
     CV itemRemoved;
 
-  // State variables
+  // 状态变量
     int items[MAX];
     int front;
     int nextEmpty;
@@ -870,15 +870,15 @@ class BBQ{
     int remove();
 };
 
-// Initialize the queue to empty,
-// the lock to free, and the
-// condition variables to empty.
+// 把队列初始化为空，
+// 锁置为可用，
+// 条件变量置为空。
 BBQ::BBQ() {
     front = nextEmpty = 0;
 }
 
-// Wait until there is room and
-// then insert an item.
+// 等待，直到有空间，
+// 然后插入数据项。
 void
 BBQ::insert(int item) {
     lock.acquire();
@@ -891,8 +891,8 @@ BBQ::insert(int item) {
     lock.release();
 }
 
-// Wait until there is an item and
-// then remove an item.
+// 等待，直到有数据项，
+// 然后取出数据项。
 int
 BBQ::remove() {
     int item;
@@ -1082,7 +1082,7 @@ BBQ::remove() {
 
    Singleton* Singleton::pInstance = NULL;
 
-   // BUG! DON'T DO THIS!
+   // 错误！不要这样写！
    Singleton* Singleton::instance() {
        if (pInstance == NULL) {
            lock.acquire();
@@ -1103,7 +1103,7 @@ BBQ::remove() {
 
 ```c
    public synchronized foo() {
-       // Do something; lock is automatically acquired/released.
+       // 做点什么；锁会自动获取/释放。
    }
 ```
 
@@ -1111,11 +1111,11 @@ BBQ::remove() {
 
 ```c
    public bar() {
-       // Do something without holding the lock
+       // 在不持有锁的情况下做点什么
        synchronized {
-           // Do something while holding the lock
+           // 在持有锁的情况下做点什么
        }
-       // Do something without holding the lock
+       // 在不持有锁的情况下做点什么
    }
 ```
 
@@ -1147,7 +1147,7 @@ BBQ::remove() {
 
 ```c
 rwLock->startRead();
-// Read shared data
+// 读取共享数据
 rwLock->doneRead();
 ```
 
@@ -1155,7 +1155,7 @@ rwLock->doneRead();
 
 ```c
 rwLock->startWrite();
-// Read and write shared data
+// 读写共享数据
 rwLock->doneWrite();
 ```
 
@@ -1166,12 +1166,12 @@ rwLock->doneWrite();
 ```c
 class RWLock{
   private:
-    // Synchronization variables
+    // 同步变量
     Lock lock;
     CV readGo;
     CV writeGo;
 
-    // State variables
+    // 状态变量
     int activeReaders;
     int activeWriters;
     int waitingReaders;
@@ -1210,8 +1210,8 @@ RWLock::doneRead 与 doneWrite 不会等待（获取互斥锁除外）。因此�
 startRead 和 doneRead 的代码现在完成了：
 
 ```c
-// Wait until no active or waiting
-// writes, then proceed.
+// 等待，直到没有活跃或等待中的
+// 写操作，然后继续。
 void RWLock::startRead() {
     lock.acquire();
     waitingReaders++;
@@ -1223,8 +1223,8 @@ void RWLock::startRead() {
     lock.release();
 }
 
-// Done reading. If no other active
-// reads, a write may proceed.
+// 读取结束。若没有其他活跃的
+// 读操作，写操作才可以继续。
 void RWLock::doneRead() {
     lock.acquire();
     activeReaders--;
@@ -1256,8 +1256,8 @@ writeShouldWait 的代码与此类似。
 <div class="code-cap"><span class="code-label">图 5.10</span>读写锁的一种实现。</div>
 
 ```c
-// Wait until no active or waiting
-// writes, then proceed.
+// 等待，直到没有活跃或等待中的
+// 写操作，然后继续。
 void RWLock::startRead() {
     lock.acquire();
     waitingReaders++;
@@ -1269,8 +1269,8 @@ void RWLock::startRead() {
     lock.release();
 }
 
-// Done reading. If no other active
-// reads, a write may proceed.
+// 读取结束。若没有其他活跃的
+// 读操作，写操作才可以继续。
 void RWLock::doneRead() {
     lock.acquire();
     activeReaders--;
@@ -1281,16 +1281,16 @@ void RWLock::doneRead() {
     lock.release();
 }
 
-// Read waits if any active or waiting
-// write ("writers preferred").
+// 读操作需等待，只要有活跃或等待中的
+// 写（“写者优先”）。
 bool
 RWLock::readShouldWait() {
     return (activeWriters > 0
              || waitingWriters > 0);
 }
 
-// Wait until no active read or
-// write then proceed.
+// 等待，直到没有活跃的读或
+// 写，然后继续。
 void RWLock::startWrite() {
     lock.acquire();
     waitingWriters++;
@@ -1302,8 +1302,8 @@ void RWLock::startWrite() {
     lock.release();
 }
 
-// Done writing. A waiting write or
-// read may proceed.
+// 写入结束。等待中的写操作或
+// 读操作可以继续。
 void
 RWLock::doneWrite() {
     lock.acquire();
@@ -1318,7 +1318,7 @@ RWLock::doneWrite() {
     lock.release();
 }
 
-// Write waits for active read or write.
+// 写操作需等待活跃的读或写结束。
 bool
 RWLock::writeShouldWait() {
     return (activeWriters > 0
@@ -1391,14 +1391,14 @@ barrier.checkin();
 <div class="code-cap"><span class="code-label">图 5.12</span>同步屏障的一个候选实现。在这个实现中，每个屏障实例只能安全地使用一次。</div>
 
 ```c
-// A single use synch barrier.
+// 一次性同步屏障。
 class Barrier{
   private:
-    // Synchronization variables
+    // 同步变量
     Lock lock;
     CV allCheckedIn;
 
-    // State variables
+    // 状态变量
     int numEntered;
     int numThreads;
 
@@ -1413,8 +1413,8 @@ Barrier::Barrier(int n) {
     numThreads = n;
 }
 
-// No one returns until all threads
-// have called checkin.
+// 在所有线程都
+// 都调用 checkin 之后才会返回。
 void
 checkin() {
     lock.acquire();
@@ -1422,7 +1422,7 @@ checkin() {
     if (numEntered < numThreads) {
         while (numEntered < numThreads)
         allCheckedIn.wait(&lock);
-    } else { // last thread to checkin
+    } else { // 最后调用 checkin 的线程
         allCheckedIn.broadcast();
     }
     lock.release();
@@ -1440,15 +1440,15 @@ checkin() {
 <div class="code-cap"><span class="code-label">图 5.13</span>可重用的同步屏障的实现。</div>
 
 ```c
-// A re-usable synch barrier.
+// 可重复使用的同步屏障。
 class Barrier{
   private:
-    // Synchronization variables
+    // 同步变量
     Lock lock;
     CV allCheckedIn;
     CV allLeaving;
 
-    // State variables
+    // 状态变量
     int numEntered;
     int numLeaving;
     int numThreads;
@@ -1465,8 +1465,8 @@ Barrier::Barrier(int n) {
     numThreads = n;
 }
 
-// No one returns until all threads
-// have called checkin.
+// 在所有线程都
+// 都调用 checkin 之后才会返回。
 void
 checkin() {
     lock.acquire();
@@ -1475,7 +1475,7 @@ checkin() {
         while (numEntered < numThreads)
         allCheckedIn.wait(&lock);
     } else {
-    // no threads in allLeaving.wait
+    // allLeaving.wait 中没有线程
         numLeaving = 0;
         allCheckedIn.broadcast();
     }
@@ -1484,7 +1484,7 @@ checkin() {
         while (numLeaving < numThreads)
         allLeaving.wait(&lock);
     } else {
-    // no threads in allCheckedIn.wait
+    // allCheckedIn.wait 中没有线程
         numEntered = 0;
         allLeaving.broadcast();
     }
@@ -1525,19 +1525,19 @@ FIFOBBQ::remove() {
     lock.acquire();
 
     myPosition = numRemoveCalled++;
-    mycv = new CV;  // Create a new condition variable to wait on.
+    mycv = new CV;  // 创建一个新的条件变量用于等待。
     removeQueue.append(myCV);
 
-// Even if I am woken up, wait until it is my turn.
+// 即使被唤醒，也要等到轮到自己。
     while (front < myPosition || front == nextEmpty) {
         mycv->Wait(&lock);
     }
 
-    delete self;    // The condition variable is no longer needed.
+    delete self;    // 这个条件变量不再需要了。
     item = items[front % size];
     front++;
 
-// Wake up the next thread waiting in insert, if any.
+// 如果有线程在 insert 中等待，唤醒下一个。
     nextWaiter = insertQueue.removeFromFront();
     if (nextWaiter != NULL)
         nextWaiter->Signal(&lock);
@@ -1628,13 +1628,13 @@ Lock::release() { enableInterrupts(); }
  }
 
  Lock::release() {
- // next thread to hold lock
+ // 下一个持有锁的线程
      TCB *next;
 
      disableInterrupts();
      if (waiting.notEmpty()) {
-     // move one TCB from waiting
-     // to ready
+     // 把一个 TCB 从等待队列
+     // 移到就绪队列
          next = waiting.remove();
          next->state = READY;
          readyList.add(next);
@@ -1682,8 +1682,8 @@ Lock::release() { enableInterrupts(); }
 
    public:
      void acquire() {
-         while (test_and_set(&value)) // while BUSY
-             ; // spin
+         while (test_and_set(&value)) // 当 BUSY 时
+             ; // 自旋
      }
 
      void release() {
@@ -1725,7 +1725,7 @@ Lock::release() { enableInterrupts(); }
      if (value != FREE) {
          waiting.add(runningThread);
          scheduler.suspend(&spinLock);
-        // scheduler releases spinLock
+        // 调度器释放 spinLock
      } else {
          value = BUSY;
          spinLock.release();
@@ -1825,9 +1825,9 @@ Linux 的锁实现正是利用了这一点：在线程获取锁时无需等待�
 Linux 的锁获取代码是一个宏（以避免在快路径上发生过程调用），展开后是一小段指令。decl 指令前面的 x86 lock 前缀告诉处理器：这条指令应当原子地执行。
 
 ```c
-        lock decl (%eax)  // atomic decrement of a memory location
-                          // address in %eax is pointer to lock->count
-        jns 1f            // jump if not signed (if value is now 0)
+        lock decl (%eax)  // 对内存单元的原子减一
+                          // %eax 中的地址是 lock->count 的指针
+        jns 1f            // 若无符号（值为 0）则跳转
         call slowpath_acquire
     1:
 ```
@@ -1868,8 +1868,8 @@ Linux 的锁获取代码是一个宏（以避免在快路径上发生过程调�
 释放时，如果锁的值为 0（即锁没有等待者），快路径就是两条内联指令。
 
 ```c
-        lock incl (%eax)     // atomic increment
-        jg 1f        // jump if new value is 1
+        lock incl (%eax)     // 原子加一
+        jg 1f        // 若新值为 1 则跳转
         call slowpath_release
     1:
 ```
@@ -1911,16 +1911,16 @@ Linux 的锁获取代码是一个宏（以避免在快路径上发生过程调�
      void broadcast();
  }
 
- // Monitor lock is held by current thread.
+ // 管程锁由当前线程持有。
  void CV::wait(Lock *lock) {
      assert(lock.isHeld());
      waiting.add(myTCB);
-     // Switch to new thread and release lock.
+     // 切换到新线程并释放锁。
      scheduler.suspend(&lock);
      lock->acquire();
  }
 
- // Monitor lock is held by current thread.
+ // 管程锁由当前线程持有。
  void CV::signal() {
      if (waiting.notEmpty()) {
          thread = waiting.remove();
@@ -1960,15 +1960,11 @@ Linux 的锁获取代码是一个宏（以避免在快路径上发生过程调�
 
 ## 5.8　信号量：弊大于利
 
-#block(
- inset: (left: 12pt, right: 4pt, top: 1pt, bottom: 1pt),
- stroke: (left: 2pt + accent),
- width: 100%,
-)[
- #set par(first-line-indent: 0em, leading: 0.72em)
- #set text(size: 9.8pt, fill: rgb(“#3b4a5a”))
- “在系统构想阶段就逐渐发现，我们以两种完全不同的方式使用信号量。这种差别如此显著，以致回过头看，人们不禁要问：把这两种方式说成是对同一组原语的运用，是否真的公平。一方面，我们把信号量用于互斥；另一方面，则是私有信号量。”（摘自 Dijkstra《The structure of the ’THE’-Multiprogramming System》，*Communications of the ACM*，第 11 卷第 5 期，1968 年 5 月。）
-]
+<blockquote class="book-quote">
+
+“在系统构想阶段就逐渐发现，我们以两种完全不同的方式使用信号量。这种差别如此显著，以致回过头看，人们不禁要问：把这两种方式说成是对同一组原语的运用，是否真的公平。一方面，我们把信号量用于互斥；另一方面，则是私有信号量。”（摘自 Dijkstra《The structure of the ’THE’-Multiprogramming System》，*Communications of the ACM*，第 11 卷第 5 期，1968 年 5 月。）
+
+</blockquote>
 
 本书的重点是使用锁与条件变量来构造共享对象，以实现同步。然而多年来，人们提出了许多不同的同步原语，包括通信顺序进程（communicating sequential processes）、事件投递（event delivery）、消息传递（message passing）等等。重要的是要认识到：这些机制都不比使用锁与条件变量更强大；采用其中任何一种范式的程序，都可以通过直截了当的变换改写为管程。
 
@@ -2103,8 +2099,8 @@ void CV::signal() {
 **可以，使用我们为实现 FIFO 有界缓冲区而勾勒的技术：为每个等待者创建一个信号量，然后精确地唤醒正确的那个等待者。** 这个解法由 Andrew Birrell 提出，用于在 Microsoft Windows 原生支持条件变量之前，在其上实现条件变量。
 
 ```c
-// Put thread on queue of waiting
-// threads.
+// 把线程挂到等待队列上：
+// 线程。
 void CV::wait(Lock *lock) {
     semaphore = new Semaphore(0);
     waitQueue.Append(semaphore);
@@ -2113,7 +2109,7 @@ void CV::wait(Lock *lock) {
     lock.acquire();
 }
 
-// Wake up one waiter if any.
+// 如果有等待者，唤醒其中一个。
 void CV::signal() {
     if (!waitQueue.isEmpty()) {
         semaphore = queue.Remove();
@@ -2182,10 +2178,10 @@ void CV::signal() {
     private:
       int val;
     public:
-      TooSimpleMutex(): val (0) { }  // Constructor
+      TooSimpleMutex(): val (0) { }  // 构造函数
       void acquire () {
           int c;
-          // atomic_inc returns *old* value
+          // atomic_inc 返回的是*旧*值
           while ((c = atomic_inc (val)) != 0) {
               futex_wait (&val, c + 1);
           }
@@ -2239,11 +2235,11 @@ void CV::signal() {
 + 同步缓冲区是这样一种缓冲区：把条目放入缓冲区的线程要一直等到取走该条目的线程已经取走它，然后才返回。请用 Mesa 风格的锁与条件变量实现一个同步缓冲区，提供以下例程：
 
 ```c
-  // Put item into the buffer and return only once the item
-  // has been retrieved by some thread.
+  // 把数据项放入缓冲区，并且只在它
+  // 被某个线程取出之后才返回。
   SyncBuf::put(item);
 
-  // Wait until there is an item in the buffer, and then return it.
+  // 等待缓冲区中出现数据项，然后取出返回。
   SyncBuf::get();
 ```
 

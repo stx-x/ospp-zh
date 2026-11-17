@@ -361,17 +361,17 @@ $$
 <div class="table-cap"><span class="tbl-label">表 9.14</span>对表现出时间局部性的引用模式，LRU（上）、FIFO（中）与 MIN（下）的缓存行为。每一行表示一个页框或缓存块的内容；+ 表示缓存命中。在这种引用模式上，LRU 与 MIN 直到最后一次引用之前都相同；在最后一次引用处，MIN 可以任选一块来替换。</div>
 <table class="book-table">
 <tbody>
-<tr><td>#v(0.5em)<strong>LRU</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><strong>LRU</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>1</td><td>A</td><td></td><td>+</td><td></td><td></td><td></td><td>+</td><td></td><td></td><td></td><td>+</td><td></td><td></td><td>+</td><td></td></tr>
 <tr><td>2</td><td></td><td>B</td><td></td><td></td><td>+</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>+</td><td></td><td></td></tr>
 <tr><td>3</td><td></td><td></td><td></td><td>C</td><td></td><td></td><td></td><td></td><td>E</td><td></td><td></td><td>+</td><td></td><td></td><td></td></tr>
 <tr><td>4</td><td></td><td></td><td></td><td></td><td></td><td>D</td><td></td><td>+</td><td></td><td>+</td><td></td><td></td><td></td><td></td><td>C</td></tr>
-<tr><td>#v(0.5em)<strong>FIFO</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><strong>FIFO</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>1</td><td>A</td><td></td><td>+</td><td></td><td></td><td></td><td>+</td><td></td><td>E</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>2</td><td></td><td>B</td><td></td><td></td><td>+</td><td></td><td></td><td></td><td></td><td></td><td>A</td><td></td><td></td><td>+</td><td></td></tr>
 <tr><td>3</td><td></td><td></td><td></td><td>C</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>+</td><td>B</td><td></td><td></td></tr>
 <tr><td>4</td><td></td><td></td><td></td><td></td><td></td><td>D</td><td></td><td>+</td><td></td><td>+</td><td></td><td></td><td></td><td></td><td>C</td></tr>
-<tr><td>#v(0.5em)<strong>MIN</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><strong>MIN</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>1</td><td>A</td><td></td><td>+</td><td></td><td></td><td></td><td>+</td><td></td><td></td><td></td><td>+</td><td></td><td></td><td>+</td><td></td></tr>
 <tr><td>2</td><td></td><td>B</td><td></td><td></td><td>+</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>+</td><td></td><td>C</td></tr>
 <tr><td>3</td><td></td><td></td><td></td><td>C</td><td></td><td></td><td></td><td></td><td>E</td><td></td><td></td><td>+</td><td></td><td></td><td></td></tr>
@@ -386,12 +386,12 @@ $$
 <div class="table-cap"><span class="tbl-label">表 9.15</span>对反复扫描内存的引用模式，LRU（上）与 MIN（下）的缓存行为。每一行表示一个页框或缓存块的内容；+ 表示缓存命中。在这种引用模式上，LRU 与 FIFO 相同，每次引用都未命中；最优策略是替换最近使用过的页，因为它要到最远的将来才会被再次引用。</div>
 <table class="book-table">
 <tbody>
-<tr><td>#v(0.5em)<strong>LRU</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><strong>LRU</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>1</td><td>A</td><td></td><td></td><td></td><td>E</td><td></td><td></td><td></td><td>D</td><td></td><td></td><td></td><td>C</td><td></td><td></td></tr>
 <tr><td>2</td><td></td><td>B</td><td></td><td></td><td></td><td>A</td><td></td><td></td><td></td><td>E</td><td></td><td></td><td></td><td>D</td><td></td></tr>
 <tr><td>3</td><td></td><td></td><td>C</td><td></td><td></td><td></td><td>B</td><td></td><td></td><td></td><td>A</td><td></td><td></td><td></td><td>E</td></tr>
 <tr><td>4</td><td></td><td></td><td></td><td>D</td><td></td><td></td><td></td><td>C</td><td></td><td></td><td></td><td>B</td><td></td><td></td><td></td></tr>
-<tr><td>#v(0.5em)<strong>MIN</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><strong>MIN</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>1</td><td>A</td><td></td><td></td><td></td><td></td><td>+</td><td></td><td></td><td></td><td></td><td>+</td><td></td><td></td><td>+</td><td></td></tr>
 <tr><td>2</td><td></td><td>B</td><td></td><td></td><td></td><td></td><td>+</td><td></td><td></td><td></td><td></td><td>+</td><td>C</td><td></td><td></td></tr>
 <tr><td>3</td><td></td><td></td><td>C</td><td></td><td></td><td></td><td></td><td>+</td><td>D</td><td></td><td></td><td></td><td></td><td>+</td><td></td></tr>
@@ -432,11 +432,11 @@ LRU 与 LFU 都在试图预测未来的行为，二者的长处是互补的。�
 <div class="table-cap"><span class="tbl-label">表 9.16</span>FIFO 在两种不同缓存容量下的缓存行为，用以说明贝拉迪异常。对这一引用序列，较大的缓存发生十次缓存未命中，而较小的缓存少一次。</div>
 <table class="book-table">
 <tbody>
-<tr><td>#v(0.5em)<strong>FIFO（3 个槽位）</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><strong>FIFO（3 个槽位）</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>1</td><td>A</td><td></td><td></td><td>D</td><td></td><td></td><td>E</td><td></td><td></td><td></td><td></td><td>+</td></tr>
 <tr><td>2</td><td></td><td>B</td><td></td><td></td><td>A</td><td></td><td></td><td>+</td><td></td><td>C</td><td></td><td></td></tr>
 <tr><td>3</td><td></td><td></td><td>C</td><td></td><td></td><td>B</td><td></td><td></td><td>+</td><td></td><td>D</td><td></td></tr>
-<tr><td>#v(0.5em)<strong>FIFO（4 个槽位）</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><strong>FIFO（4 个槽位）</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>1</td><td>A</td><td></td><td></td><td></td><td>+</td><td></td><td>E</td><td></td><td></td><td></td><td>D</td><td></td></tr>
 <tr><td>2</td><td></td><td>B</td><td></td><td></td><td></td><td>+</td><td></td><td>A</td><td></td><td></td><td></td><td>E</td></tr>
 <tr><td>3</td><td></td><td></td><td>C</td><td></td><td></td><td></td><td></td><td></td><td>B</td><td></td><td></td><td></td></tr>

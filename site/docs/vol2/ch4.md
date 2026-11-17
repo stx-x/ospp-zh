@@ -232,7 +232,7 @@ int main(int argc, char **argv) {
 void go(int n) {
     printf("Hello from thread %d\n", n);
     thread_exit(100 + n);
-    // Not reached
+    // 不会执行到这里
 }
 ```
 
@@ -308,7 +308,7 @@ main 函数用 thread_join 等待它创建的每一个线程。每当一个线�
 <div class="code-cap"><span class="code-label">图 4.7</span>用多个线程并行地把一块连续的内存区域清零的例程。为了向子线程传递两个参数（指向缓冲区的指针和缓冲区的长度），程序传递一个指向保存这两个参数的 struct 的指针。</div>
 
 ```c
-// To pass two arguments, we need a struct to hold them.
+// 要传两个参数，需要用结构体把它们装起来。
 typedef struct bzeroparams {
     unsigned char *buffer;
     int length;
@@ -320,13 +320,13 @@ void go (struct bzeroparams *p) {
     memset(p->buffer, 0, p->length);
 }
 
-// Zero a block of memory using multiple threads.
+// 用多个线程把一块内存清零。
 void blockzero (unsigned char *p, int length) {
     int i;
     thread_t threads[NTHREADS];
     struct bzeroparams params[NTHREADS];
 
-// For simplicity, assumes length is divisible by NTHREADS.
+// 为简单起见，假定长度能被 NTHREADS 整除。
     assert((length % NTHREADS) == 0);
     for (i = 0; i < NTHREADS; i++) {
         params[i].buffer = p + i * length/NTHREADS;
@@ -524,41 +524,41 @@ void blockzero (unsigned char *p, int length) {
 <div class="code-cap"><span class="code-label">图 4.13</span>创建线程的伪代码。初始化栈的具体做法，以及向初始函数传递参数的约定，都与机器相关。在 Intel x86 体系结构上，栈从高地址开始向下增长，参数通过栈传递；在其他系统上，栈可能向上增长，参数也可能通过寄存器传递。图 4.14 给出了 <code>thread_dummySwitchFrame</code> 的伪代码。</div>
 
 ```c
- // func is a pointer to a procedure the thread will run.
- // arg is the argument to be passed to that procedure.
+ // func 是指向线程将要运行的过程的指针。
+ // arg 是要传给该过程的参数。
  void
  thread_create(thread_t *thread, void (*func)(int), int arg) {
-     // Allocate TCB and stack
+     // 分配 TCB 与栈
      TCB *tcb = new TCB();
 
      thread->tcb = tcb;
      tcb->stack_size = INITIAL_STACK_SIZE;
      tcb->stack = new Stack(INITIAL_STACK_SIZE);
 
-     // Initialize registers so that when thread is resumed, it will start running at
-     // stub.  The stack starts at the top of the allocated region and grows down.
+     // 初始化寄存器，使线程被恢复时从该处开始运行：
+     // stub。栈从分配区域的高端开始，向下增长。
      tcb->sp = tcb->stack + INITIAL_STACK_SIZE;
      tcb->pc = stub;
 
-     // Create a stack frame by pushing stub’s arguments and start address
-     // onto the stack: func, arg
+     // 压入 stub 的参数与起始地址，构造一个栈帧
+     // 压入栈：func、arg
      *(tcb->sp) = arg;
      tcb->sp--;
      *(tcb->sp) = func;
      tcb->sp--;
 
-     // Create another stack frame so that thread_switch works correctly.
-     // This routine is explained later in the chapter.
+     // 再构造一个栈帧，使 thread_switch 能正确工作。
+     // 该例程在本章后面讲解。
      thread_dummySwitchFrame(tcb);
 
      tcb->state = READY;
-     readyList.add(tcb);    // Put tcb on ready list
+     readyList.add(tcb);    // 把 tcb 放入就绪队列
  }
 
  void
  stub(void (*func)(int), int arg) {
-     (*func)(arg);           // Execute the function func()
-     thread_exit(0);         // If func() does not call exit,  call it here.
+     (*func)(arg);           // 执行函数 func()
+     thread_exit(0);         // 若 func() 没有调用 exit，就在这里调用。
  }
 ```
 
@@ -635,35 +635,35 @@ void blockzero (unsigned char *p, int length) {
 <div class="code-cap"><span class="code-label">图 4.14</span>Intel x86 体系结构上 <code>thread_switch</code> 与 <code>thread_yield</code> 的伪代码。注意，如果没有其他线程可运行，<code>thread_yield</code> 就是一个空操作；否则它保存旧线程的状态并恢复新线程的状态。当旧线程被重新调度时，它从 <code>thread_switch</code> 返回，作为运行线程继续执行。</div>
 
 ```c
- // We enter as oldThread, but we return as newThread.
- // Returns with newThread’s registers and stack.
+ // 进入时是 oldThread，返回时已变成 newThread。
+ // 返回时已换用 newThread 的寄存器与栈。
  void thread_switch(oldThreadTCB, newThreadTCB) {
-     pushad;                  // Push general register values onto the old stack.
-     oldThreadTCB->sp = %esp; // Save the old thread’s stack pointer.
-     %esp = newThreadTCB->sp; // Switch to the new stack.
-     popad;            // Pop register values from the new stack.
+     pushad;                  // 把通用寄存器值压入旧栈。
+     oldThreadTCB->sp = %esp; // 保存旧线程的栈指针。
+     %esp = newThreadTCB->sp; // 切换到新栈。
+     popad;            // 从新栈中弹出寄存器值。
      return;
  }
 
  void thread_yield() {
      TCB *chosenTCB, *finishedTCB;
 
-     // Prevent an interrupt from stopping us in the middle of a switch.
+     // 防止中断在切换过程中打断我们。
      disableInterrupts();
 
-     // Choose another TCB from the ready list.
+     // 从就绪队列中选另一个 TCB。
      chosenTCB = readyList.getNextThread();
      if (chosenTCB == NULL) {
-         // Nothing else to run, so go back to running the original thread.
+         // 没有其他可运行的线程，回到原先的线程。
      } else {
-         // Move running thread onto the ready list.
+         // 把运行中的线程移到就绪队列。
          runningThread->state = ready;
          readyList.add(runningThread);
-         thread_switch(runningThread, chosenTCB); // Switch to the new thread.
+         thread_switch(runningThread, chosenTCB); // 切换到新线程。
          runningThread->state = running;
      }
 
-     // Delete any threads on the finished list.
+     // 删除已结束链表上的所有线程。
      while ((finishedTCB = finishedList->getNextThread()) != NULL) {
          delete finishedTCB->stack;
          delete finishedTCB;
@@ -671,12 +671,12 @@ void blockzero (unsigned char *p, int length) {
      enableInterrupts();
  }
 
- // thread_create must put a dummy frame at the top of its stack:
- // the return PC and space for pushad to have stored a copy of the registers.
- // This way, when someone switches to a newly created thread,
- // the last two lines of thread_switch work correctly.
+ // thread_create 必须在线程栈顶放一个哑栈帧：
+ // 返回地址，以及供 pushad 保存寄存器副本的空间。
+ // 这样，当有人切换到新建的线程时，
+ // thread_switch 的最后两行才能正确工作。
  void thread_dummySwitchFrame(newThread) {
-     *(tcb->sp) = stub;      // Return to the beginning of stub.
+     *(tcb->sp) = stub;      // 返回 stub 开头。
      tcb->sp--;
      tcb->sp -= SizeOfPopad;
  }
@@ -941,7 +941,7 @@ void blockzero (unsigned char *p, int length) {
 考虑一个简单的服务器：它把来自若干客户端的到达数据收集到一组按客户端划分的缓冲区中。事件驱动版本与“每客户端一线程”版本的伪代码十分相似：
 
 ```text
- // Event-driven
+ // 事件驱动
  Hashtable<Buffer*> *hash;
 
  while(1) {
@@ -957,7 +957,7 @@ void blockzero (unsigned char *p, int length) {
 ```
 
 ```text
- // Thread-per-client
+ // 每客户端一线程
  Buffer *b;
 
  while(1) {

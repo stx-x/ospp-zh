@@ -7,6 +7,8 @@ Typst (自定义讲义模板) -> VitePress Markdown 转换器
          bib / gitem / align(center) / columns(2) / text / sub / super
 """
 import os, re, sys, glob, json, shutil, unicodedata
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from comment_map import LEAD, TRAIL
 
 BASE = "/"
 LINKBASE = "/ospp-zh"
@@ -211,6 +213,37 @@ def typst_math(src):
 
 CN = r"\u4e00-\u9fff"
 
+UNTRANSLATED = set()
+
+def translate_comments(body):
+    """把代码块中的英文注释译为中文（映射表见 comment_map.py）"""
+    out = []
+    for ln in body.split("\n"):
+        # 整行注释
+        m = re.match(r"^(\s*//\s*)(.*?)(\s*)$", ln)
+        if m:
+            txt = m.group(2)
+            if txt in LEAD:
+                out.append(m.group(1) + LEAD[txt])
+                continue
+            if txt and txt[0].isalpha() and not re.match(r"[\u4e00-\u9fff]", txt) and not txt.startswith(("http", "www")):
+                UNTRANSLATED.add(txt)
+            out.append(ln)
+            continue
+        # 行尾注释
+        m2 = re.match(r"^(.*?\S)(\s+//\s*)(.*?)(\s*)$", ln)
+        if m2:
+            txt = m2.group(3)
+            if txt in TRAIL:
+                out.append(m2.group(1) + m2.group(2) + TRAIL[txt])
+                continue
+            if txt and txt[0].isalpha() and not re.match(r"[\u4e00-\u9fff]", txt) and not txt.startswith(("http", "www")):
+                UNTRANSLATED.add(txt)
+            out.append(ln)
+            continue
+        out.append(ln)
+    return "\n".join(out)
+
 def normalize_cn(s):
     """中文排版规范化：全角引号、中英间距。仅在中文占主导时执行。"""
     if len(re.findall(r"[" + CN + "]", s)) < 3:
@@ -226,6 +259,7 @@ def normalize_cn(s):
 
 def inline_html(s):
     """Typst 行内 -> HTML 片段（用于 HTML 块内部：题注、表格单元格）"""
+    s = strip_directives(s)
     s, store = protect(s)
     # #sub[x] / #super[x]
     s = re.sub(r"#sub\[([^\]]*)\]", lambda m: "<sub>" + m.group(1) + "</sub>", s)
@@ -257,6 +291,7 @@ def inline_html(s):
 
 def inline_md(s):
     """Typst 行内 -> Markdown"""
+    s = strip_directives(s)
     s, store = protect(s)
     s = re.sub(r"#sub\[([^\]]*)\]", lambda m: "<sub>" + m.group(1) + "</sub>", s)
     s = re.sub(r"#super\[([^\]]*)\]", lambda m: "<sup>" + m.group(1) + "</sup>", s)
@@ -292,12 +327,15 @@ def inline_md(s):
 def render_fig(num, path, cap, volkey):
     ext = os.path.splitext(path)[1].lower()
     img = BASE + "figures/%s/%s" % (volkey, path)
-    caph = inline_html(cap)
+    caph = inline_html(cap) if cap else ""
+    alt = ("图 %s" % num) if num else ""
+    label = ('<span class="fig-label">图 %s</span>' % num) if num else ""
+    figcap = ('<figcaption>%s%s</figcaption>\n' % (label, caph)) if (label or caph) else ""
     return (
         '<figure class="book-figure">\n'
-        '<img src="%s" alt="图 %s" loading="lazy" decoding="async">\n'
-        '<figcaption><span class="fig-label">图 %s</span>%s</figcaption>\n'
-        "</figure>\n" % (img, num, num, caph)
+        '<img src="%s" alt="%s" loading="lazy" decoding="async">\n'
+        "%s"
+        "</figure>\n" % (img, alt, figcap)
     )
 
 def render_code(num, cap, lang, body):
@@ -307,6 +345,7 @@ def render_code(num, cap, lang, body):
     body = body.replace("\x00", "")
     # 防止正文里残留未闭合围栏
     body = body.replace("```", "'''") if body.count("```") % 2 else body
+    body = translate_comments(body)
     langmap = {"c": "c", "asm": "asm", "none": "text", "": "text"}
     lang = langmap.get(lang or "", lang or "text")
     out = []
@@ -376,7 +415,47 @@ def render_tbl(num, caption, rowstext, headertext, volkey):
 
 KNOWN = ["chapter", "sect", "subsect", "subsubsect", "plainhead", "fig", "code",
          "tbl", "aside", "example", "answer", "exercises", "bib", "gitem",
-         "align", "columns", "index", "outline"]
+         "align", "columns", "index", "outline",
+         "block", "v", "h", "line", "set", "show", "par", "text", "raw",
+         "pagebreak", "rgb", "figimg", "image", "grid", "stack", "pad", "box",
+         "hide", "place", "rect", "circle", "underline", "strike", "smallcaps"]
+
+LEAKED = set()
+
+def remove_calls(s, names):
+    """删除 #name(...) / #name[...] 调用（括号配对，可含嵌套）"""
+    out = []
+    i, n = 0, len(s)
+    pat = re.compile(r"#(" + "|".join(names) + r")\b")
+    while i < n:
+        m = pat.search(s, i)
+        if not m:
+            out.append(s[i:])
+            break
+        out.append(s[i:m.start()])
+        j = m.end()
+        # 跳过函数名后的空格与参数/内容块
+        while j < n:
+            while j < n and s[j] in " \t\n":
+                j += 1
+            if j < n and s[j] in "([":
+                close = match(s, j, s[j], ")" if s[j] == "(" else "]")
+                if close < 0:
+                    j = n
+                    break
+                j = close + 1
+            else:
+                break
+        i = j
+    return "".join(out)
+
+def strip_directives(s):
+    """剥离 body 内部的 Typst 样式指令"""
+    s = remove_calls(s, ["v", "h", "line", "pagebreak", "index", "outline"])
+    # #set / #show 到行尾
+    s = re.sub(r"(?m)^[ \t]*#(set|show)[^\n]*\n?", "", s)
+    s = re.sub(r"#(set|show)[^\n]*?\)\s*", "", s)
+    return s
 
 def convert(text, volkey, imgdir):
     parts = []          # (is_html, content)
@@ -504,7 +583,28 @@ def render_block(name, pos, kw, body, volkey, imgdir):
         return "\n"
     if name == "outline":
         return "\n"
-    return ""
+    if name == "block":
+        inner = strip_directives(body or "")
+        text = inline_md(inner).strip()
+        if not text:
+            return ""
+        # 带左侧竖线的引用块 -> 引文
+        if "left" in (kw.get("stroke") or ""):
+            return "\n\n<blockquote class=\"book-quote\">\n\n%s\n\n</blockquote>\n\n" % text
+        return "\n\n%s\n\n" % text
+    if name == "figimg":
+        path = unquote(pos[0]) if pos else ""
+        if not path:
+            return ""
+        return "\n" + render_fig("", os.path.basename(path), "", volkey) + "\n"
+    if name in ("v", "h", "line", "set", "show", "pagebreak", "par", "raw", "rgb",
+                "image", "grid", "stack", "pad", "box", "hide", "place", "rect",
+                "circle", "underline", "strike", "smallcaps"):
+        return ""
+    if name == "text":
+        return inline_md(body or "")
+    LEAKED.add(name)
+    return inline_md(body or "")
 
 # ---------------------------------------------------------------- 文档切分
 
@@ -667,6 +767,12 @@ def main():
         print("appendix", kind, len(body))
 
     write_contents(docs)
+    if LEAKED:
+        print("未识别函数 %d 个:" % len(LEAKED), sorted(LEAKED))
+    if UNTRANSLATED:
+        print("未翻译注释 %d 条:" % len(UNTRANSLATED))
+        for t in sorted(UNTRANSLATED):
+            print("  !", t)
 
 
 def write_contents(docs):

@@ -266,8 +266,8 @@ UNIX API 的这一设计带来的一个后果是，open 的实现需要一把锁
 
 ```c
     void Counter::Increment() {
-        while (test_and_set(&lock)) // while BUSY
-            ; // spin
+        while (test_and_set(&lock)) // 当 BUSY 时
+            ; // 自旋
         value++;
         lock = FREE;
         memory_barrier();
@@ -289,8 +289,8 @@ UNIX API 的这一设计带来的一个后果是，open 的实现需要一把锁
 
 ```c
  void Counter::Increment() {
-     while (lock == BUSY || test_and_set(&lock)) // while BUSY
-         ; // spin
+     while (lock == BUSY || test_and_set(&lock)) // 当 BUSY 时
+         ; // 自旋
      value++;
      lock = FREE;
      memory_barrier();
@@ -316,15 +316,15 @@ UNIX API 的这一设计带来的一个后果是，open 的实现需要一把锁
      if (compare_and_swap(&tail,
                      myTCB, NULL)) {
 
-         // If tail == myTCB, no one is
-         // waiting. MCSLock is now free.
+         // 若 tail == myTCB，说明没有人在
+         // 等待，MCSLock 现在空闲。
 
      } else {
-         // Someone is waiting.
+         // 有人在等待。
          while (myTCB->next == NULL)
-             ; // spin until next is set
+             ; // 自旋等待 next 被设置
 
-         // Tell next thread to proceed.
+         // 通知下一个线程继续。
          myTCB->next->needToWait = FALSE;
      }
  }
@@ -336,20 +336,20 @@ UNIX API 的这一设计带来的一个后果是，open 的实现需要一把锁
      while (!compare_and_swap(&tail,
                    oldTail, &myTCB)) {
 
-         // Try again if someone else
-         // changed tail in the meantime.
+         // 若有人在此期间
+         // 改动了 tail，就重试。
 
          oldTail = tail;
      }
 
-     // If oldTail == NULL, lock acquired.
+     // 若 oldTail == NULL，说明已获得锁。
      if (oldTail != NULL) {
-         // Need to wait.
+         // 需要等待。
          myTCB->needToWait = TRUE;
          memory_barrier();
          oldTail->next = myTCB;
          while (myTCB->needToWait)
-             ; //spin
+             ; //自旋
      }
  }
 ```
@@ -506,25 +506,25 @@ search 方法是只读的：在用 readLock 注册之后，它沿链表向下扫
                     int value) {
      Element *item;
 
-     // One write at a time.
+     // 一次只允许一个写者。
      rcuLock.writeLock();
 
-     // Initialize item.
+     // 初始化数据项。
      item = (Element*)
           malloc(sizeof(Element));
      item->key = key;
      item->value = value;
      item->next = head;
 
-     // Atomically update list.
+     // 以原子方式更新链表。
      rcuLock.publish(&head, item);
 
-     // Allow other writes
-     // to proceed.
+     // 允许其他写操作
+     // 才可以继续。
      rcuLock.writeUnlock();
 
-     // Wait until no reader
-     // has old version.
+     // 等待，直到没有读者
+     // 还持有旧版本。
      rcuLock.synchronize();
  }
 
@@ -533,7 +533,7 @@ search 方法是只读的：在用 readLock 注册之后，它沿链表向下扫
      bool found = FALSE;
      Element *prev, *current;
 
-     // One write at a time.
+     // 一次只允许一个写者。
      rcuLock.WriteLock();
      for (prev = NULL, current = head;
              current != NULL; prev = current,
@@ -541,7 +541,7 @@ search 方法是只读的：在用 readLock 注册之后，它沿链表向下扫
          if (current->key == key) {
              found = TRUE;
 
-             // Publish update to readers
+             // 向读者发布更新
              if (prev == NULL) {
                  rcuLock.publish(&head,
                            current->next);
@@ -553,10 +553,10 @@ search 方法是只读的：在用 readLock 注册之后，它沿链表向下扫
          }
      }
 
-     // Allow other writes to proceed.
+     // 允许其他写操作继续。
      rcuLock.writeUnlock();
 
-     // Wait until no reader has old version.
+     // 等待，直到没有读者持有旧版本。
      if (found) {
          rcuLock.synchronize();
          free(current);
@@ -578,17 +578,17 @@ search 方法是只读的：在用 readLock 注册之后，它沿链表向下扫
 ```c
  class RCULock{
    private:
-   // Global state
+   // 全局状态
      Spinlock globalSpin;
      long globalCounter;
-   // One per processor
+   // 每处理器一份
      DEFINE_PER_PROCESSOR(
         static long, quiescentCount);
 
-   // Per-lock state
+   // 每锁状态
      Spinlock writerSpin;
 
-   // Public API omitted
+   // 省略公有 API
  }
 
  void RCULock::ReadLock() {
@@ -599,7 +599,7 @@ search 方法是只读的：在用 readLock 注册之后，它沿链表向下扫
      enableInterrupts();
  }
 
- // Called by scheduler
+ // 由调度器调用
  void RCULock::QuiescentState(){
      memory_barrier();
      PER_PROC_VAR(quiescentCount) =
@@ -633,7 +633,7 @@ search 方法是只读的：在用 readLock 注册之后，它沿链表向下扫
      FOREACH_PROCESSOR(p) {
          while((PER_PROC_VAR(
            quiescentCount, p) - c) < 0) {
-             // release CPU for 10ms
+             // 释放 CPU 10 毫秒
              sleep(10);
          }
      }
@@ -726,7 +726,7 @@ Fridge::addMilk();
 死锁可能出现在许多不同场合，其中最简单的一种是*相互递归加锁*（mutually recursive locking），如下面的代码片段所示：
 
 ```c
-// Thread A
+// 线程 A
 
 lock1.acquire();
 lock2.acquire();
@@ -735,7 +735,7 @@ lock1.release();
 ```
 
 ```c
-// Thread B
+// 线程 B
 
 lock2.acquire();
 lock1.acquire();
@@ -748,7 +748,7 @@ lock2.release();
 两把锁加一个条件变量也会让我们陷入死锁，如下所示：
 
 ```c
-// Thread A
+// 线程 A
 
 lock1.acquire();
 ...
@@ -763,7 +763,7 @@ lock1.release();
 ```
 
 ```c
-// Thread B
+// 线程 B
 
 lock1.acquire();
 ...
@@ -782,7 +782,7 @@ lock1.release();
 假设我们有两个有界缓冲区（bounded buffer），一个线程把请求放入其中一个缓冲区，并从另一个缓冲区取出响应。如果另一个线程反过来做，就可能导致死锁。
 
 ```c
-// Thread A
+// 线程 A
 
 buffer1.put();
 buffer1.put();
@@ -792,7 +792,7 @@ buffer2.get();
 ```
 
 ```c
-// Thread B
+// 线程 B
 
 buffer2.put();
 buffer2.put();
@@ -1027,11 +1027,11 @@ class ResourceMgr{
   private:
     Lock lock;
     CV cv;
-    int r;          // Number of resources
-    int t;          // Number of threads
-    int avail[];    // avail[i]: instances of resource i available
-    int max[][];    // max[i][j]: max of resource i needed by thread j
-    int alloc[][];  // alloc[i][j]: current allocation of resource i to thread j
+    int r;          // 资源种类数
+    int t;          // 线程数
+    int avail[];    // avail[i]：资源 i 的可用实例数
+    int max[][];    // max[i][j]：线程 j 对资源 i 的最大需求
+    int alloc[][];  // alloc[i][j]：资源 i 分配给线程 j 的当前数量
   ...
 }
 ```
@@ -1039,7 +1039,7 @@ class ResourceMgr{
 <div class="code-cap"><span class="code-label">图 6.20</span>银行家算法的高层伪代码。算法维护的状态见图 6.19。方法 isSafe 与 wouldBeSafe 见图 6.21。</div>
 
 ```c
-// Invariant: the system is in a safe state.
+// 不变式：系统处于安全状态。
 ResourceMgr::Request(int resourceID, int threadID) {
     lock.Acquire();
     assert(isSafe());
@@ -1056,17 +1056,17 @@ ResourceMgr::Request(int resourceID, int threadID) {
 <div class="code-cap"><span class="code-label">图 6.21</span>银行家算法中用于检验下一个状态是否安全的伪代码。如果不安全，系统就推迟，直到它变为安全。</div>
 
 ```c
-// A state is safe iff there exists a safe sequence of grants that are sufficient
-// to allow all threads to eventually receive their maximum resource needs.
+// 系统处于安全状态，当且仅当存在一个安全授予序列，足以
+// 使所有线程最终获得其最大资源需求。
 
 bool
 ResourceMgr::isSafe() {
     int j;
     int toBeAvail[] = copy avail[];
-    int need[][] = max[][] - alloc[][];  // need[i][j] is initialized to
+    int need[][] = max[][] - alloc[][];  // need[i][j] 初始化为
                                          // max[i][j] - alloc[i][j]
-    bool finish[] = [false, false, false, ...]; // finish[j] is true
-                                         // if thread j is guaranteed to finish
+    bool finish[] = [false, false, false, ...]; // finish[j] 为真
+                                         // 若线程 j 一定能结束
 
     while (true) {
         j = any threadID such that:
@@ -1077,15 +1077,15 @@ ResourceMgr::isSafe() {
             } else {
                 return false;
             }
-        } else {  // Thread j will eventually finish and return its
-                  // current allocation to the pool.
+        } else {  // 线程 j 最终会结束，并把它
+                  // 把当前分配归还资源池。
             finish[j] = true;
             forall i:  toBeAvail[i] = toBeAvail[i] + alloc[i][j];
         }
     }
 }
 
-// Hypothetically grant request and see if resulting state is safe.
+// 假设批准该请求，看结果状态是否安全。
 
 bool
 ResourceMgr::wouldBeSafe(int resourceID, int threadID) {
@@ -1210,18 +1210,18 @@ Coffman、Elphick 和 Shoshani 在 1971 年描述的另一种方案，是 Dijkst
 <div class="code-cap"><span class="code-label">图 6.23</span>Coffman 等人提出的死锁检测。该算法与图 6.21 所示银行家算法的 isSafe() 检测类似。</div>
 
 ```c
-// A state is safe iff there exists a safe sequence of grants that would allow
-// all threads to eventually receive their maximum resource needs.
+// 系统处于安全状态，当且仅当存在一个安全授予序列，能够
+// 让所有线程最终获得其最大资源需求。
 //
-// avail[] holds free resource count
-// alloc[][] holds current allocation
-// request[][] holds currently-blocked requests
+// avail[] 保存空闲资源数
+// alloc[][] 保存当前分配
+// request[][] 保存当前被阻塞的请求
 bool
 ResourceMgr::isDeadlocked() {
     int j;
     int toBeAvail[] = copy avail[];
-    bool finish[] = [false, false, false, ...]; // finish[j] is true if thread
-                                                // j is guaranteed to finish
+    bool finish[] = [false, false, false, ...]; // finish[j] 为真，若线程
+                                                // j 一定能结束
 
     while(true) {
         j = any threadID such that (finish[j] == false) &&
@@ -1233,8 +1233,8 @@ ResourceMgr::isDeadlocked() {
                 return true;
             }
         } else {
-            // Thread j *may* eventually finish and
-            // return its current allocation to the pool.
+            // 线程 j *可能*最终结束，并
+            // 把当前分配归还资源池。
             finish[j] = true;
             forall i: toBeAvail[i] = toBeAvail[i] + alloc[i][j];
         }

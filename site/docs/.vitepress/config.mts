@@ -27,6 +27,10 @@ export default defineConfig({
     math: true,
     lineNumbers: false,
     image: { lazyLoading: true },
+    theme: {
+      light: 'vitesse-light',
+      dark: 'vitesse-dark',
+    },
   },
 
   themeConfig: {
