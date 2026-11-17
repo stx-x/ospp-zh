@@ -8,6 +8,8 @@ title: "第 7 章　调度"
 
 <blockquote class="epigraph">时间就是金钱。——<em>本·富兰克林</em> \ 最大的性能改进，是从“不工作”的状态转入“工作”的状态——那是无穷大的加速。——<em>约翰·奥斯特豪特</em></blockquote>
 
+<div class="chap-meta"><span>约 3.0 万字</span><span>阅读约 71 分钟</span><span>图 23 · 表 2</span></div>
+
 当有许多事情要做时，你如何决定先做哪一件？前几章介绍了如何创建线程、在线程之间切换，以及如何同步线程对共享数据的访问。在任何一个时刻，总有一些线程正在系统的处理器上运行，另一些在排队等待处理器，还有一些则处于阻塞状态——等待 I/O 完成、等待某个条件变量被唤醒，或者等待某把锁被释放。当可运行的线程多于处理器时，由**处理器调度策略**（processor scheduling policy）决定先运行哪些线程。
 
 你也许觉得这个问题的答案很简单：按工作到达的先后顺序来做就是了。毕竟，这似乎是唯一公平的做法。正因为显然公平，几乎所有的政府服务部门都这么做。你到当地的机动车管理局（Department of Motor Vehicles，DMV）去办驾照，先取一个号，然后等着叫号。这种做法虽然公平，DMV 却常常让人感觉慢。原因在于：我们将在本章后面看到，就改善用户感受到的响应时间而言，按到达顺序办事有时恰恰是最糟的选择。对外宣传“本操作系统的调度算法和 DMV 一样”，大概是不会提升销量的！
@@ -87,7 +89,7 @@ title: "第 7 章　调度"
 也许最简单的调度算法是先进先出（FIFO）：按任务到达的顺序依次执行每个任务。（FIFO 有时也称为先来先服务，即 FCFS。）一旦开始处理某个任务，就一直运行到它结束。FIFO 把开销降到最低，只在每个任务完成时才切换。正因为开销最小，如果我们有固定数量的任务、而且这些任务只需要处理器，FIFO 的吞吐量最好：它能最快地完成最多的任务。而且正如我们提到的，FIFO 看上去就是公平的定义——每个任务都耐心地等着轮到自己。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00416.png" alt="图 7.1" loading="lazy">
+<img src="/figures/vol2/image00416.png" alt="图 7.1" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.1</span>若干短任务（2–5）紧跟在一个长任务（1）之后到达时，FIFO（上）与 SJF（下）调度的完成时间。</figcaption>
 </figure>
 
@@ -136,7 +138,7 @@ title: "第 7 章　调度"
 解决饥饿问题的一种策略是按轮转（Round Robin）方式调度任务。在轮转调度中，任务轮流在处理器上运行一段有限的时间。调度器把处理器分配给就绪列表中的第一个任务，同时设置一个定时器中断，其延迟称为*时间配额*（time quantum）。配额用完时，如果任务尚未完成，它就被抢占，处理器交给就绪列表中的下一个任务。被抢占的任务放回就绪列表，等待下一次轮到自己。采用轮转调度，任务不可能饥饿——它最终会走到队首，获得自己的时间配额。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00417.png" alt="图 7.2" loading="lazy">
+<img src="/figures/vol2/image00417.png" alt="图 7.2" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.2</span>短任务紧随长任务到达时轮转调度的完成时间：上图为时间配额 1 ms，下图为 100 ms。</figcaption>
 </figure>
 
@@ -159,7 +161,7 @@ title: "第 7 章　调度"
 :::
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00418.png" alt="图 7.3" loading="lazy">
+<img src="/figures/vol2/image00418.png" alt="图 7.3" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.3</span>调度长度相同的任务时，轮转调度（上）与 FIFO 和 SJF（下）的完成时间。</figcaption>
 </figure>
 
@@ -172,7 +174,7 @@ title: "第 7 章　调度"
 取决于时间配额的大小，当同时运行 I/O 密集型与计算密集型任务时，轮转调度也可能相当糟糕。I/O 密集型任务往往只需要在处理器上占用很短的时间，以便算出下一个要发出的 I/O 操作。任何被调度上处理器的延迟都可能导致整个系统变慢。例如在文本编辑器中，把一次按键回显到屏幕往往只需几毫秒，远快于人的感知。然而，如果我们在文本编辑器和其他几个任务之间用轮转调度共享处理器，那么每按一次键，编辑器都得等上好几个时间配额才能得到调度——若时间配额为 100 ms，这种延迟对用户来说就会明显得令人恼火。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00419.png" alt="图 7.4" loading="lazy">
+<img src="/figures/vol2/image00419.png" alt="图 7.4" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.4</span>同时运行 I/O 密集型与计算密集型任务时轮转调度的行为。I/O 密集型任务在做 I/O 时让出处理器。尽管 I/O 很快就完成，该任务仍必须等到两个计算密集型任务都用完各自的时间配额，才能再次获得处理器。</figcaption>
 </figure>
 
@@ -227,7 +229,7 @@ MFQ 是轮转调度的扩展。MFQ 不只有单个队列，而是有多个轮转
 任务在优先级之间移动，以优待短任务、抑制长任务。新任务从最高优先级进入。每当任务用完它的时间配额，就下降一级；每当任务因为等待 I/O 而让出处理器，就留在同一级（或者被提升一级）；如果任务完成，它就离开系统。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00420.png" alt="图 7.5" loading="lazy">
+<img src="/figures/vol2/image00420.png" alt="图 7.5" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.5</span>同时运行 I/O 密集型与计算密集型任务时的多级反馈队列。新任务以高优先级、短时间配额进入；用完配额的任务会被降低优先级。</figcaption>
 </figure>
 
@@ -294,7 +296,7 @@ MFQ 是轮转调度的扩展。MFQ 不只有单个队列，而是有多个轮转
 - **缓存复用受限。** 如果线程在第一个可用的处理器上运行，那么它每次被调度时很可能被分配到不同的处理器上。这意味着该线程所需的数据不太可能缓存在那个处理器上。当然，线程被阻塞期间，它的一部分数据会被从缓存中挤出；但今天的片上缓存很大，线程的大部分数据仍会留在缓存中。更糟的是，该线程数据的最新版本很可能在远端缓存中，把远端数据取回本地缓存会造成更严重的性能下降。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00421.png" alt="图 7.6" loading="lazy">
+<img src="/figures/vol2/image00421.png" alt="图 7.6" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.6</span>按处理器划分的调度数据结构。每个处理器都有自己的（多级）就绪线程队列。</figcaption>
 </figure>
 
@@ -313,7 +315,7 @@ MFQ 是轮转调度的扩展。MFQ 不只有单个队列，而是有多个轮转
 人们也许以为，我们已经讨论过的调度算法就能应付这些情况。每个线程被分时地放到可用的处理器上运行；如果两个或多个应用创建的线程总数多于处理器数，多级反馈可以保证每个线程都能取得进展，并获得公平的处理器份额。这种做法通常称为*无感知调度*（oblivious scheduling），因为操作系统调度器在运行时并不了解并行应用的意图——每个线程都作为一个完全独立的实体被调度。图 7.7 说明了无感知调度。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00422.png" alt="图 7.7" loading="lazy">
+<img src="/figures/vol2/image00422.png" alt="图 7.7" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.7</span>在无感知调度下，线程由多处理器操作系统分时执行，系统不会试图保证同一进程的线程同时运行。</figcaption>
 </figure>
 
@@ -322,7 +324,7 @@ MFQ 是轮转调度的扩展。MFQ 不只有单个队列，而是有多个轮转
 - **整体同步延迟。** 并行程序中的一种常见设计模式，是把工作切成大小大致相等的若干块；当所有块都完成后，各处理器在屏障处同步，然后把自己的结果传给计算的下一阶段。这种*整体同步*（bulk synchronous）并行方式易于管理——每个处理器独立工作，只与计算的下一阶段共享结果。Google MapReduce 就是一个广泛使用的整体同步应用。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00423.png" alt="图 7.8" loading="lazy">
+<img src="/figures/vol2/image00423.png" alt="图 7.8" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.8</span>并行程序的整体同步设计模式；每个处理器在本地数据上计算，并等待其他所有处理器完成后才进入下一步。抢占一个处理器会使所有处理器停顿，直到被抢占的进程恢复运行。</figcaption>
 </figure>
 
@@ -331,12 +333,12 @@ MFQ 是轮转调度的扩展。MFQ 不只有单个队列，而是有多个轮转
 - **生产者-消费者延迟。** 有些并行应用采用生产者-消费者设计模式：一个线程的结果送给下一个线程，该线程的输出再继续往下送，如图 7.9 所示。在生产者-消费者链条的中间抢占一个线程，可能使链条上所有处理器都停顿。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00424.png" alt="图 7.9" loading="lazy">
+<img src="/figures/vol2/image00424.png" alt="图 7.9" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.9</span>并行程序的生产者-消费者设计模式。抢占其中一个阶段会使其余阶段停顿。</figcaption>
 </figure>
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00425.png" alt="图 7.10" loading="lazy">
+<img src="/figures/vol2/image00425.png" alt="图 7.10" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.10</span>并行程序的关键路径；关键路径上的延迟会增加执行时间。</figcaption>
 </figure>
 
@@ -351,14 +353,14 @@ MFQ 是轮转调度的扩展。MFQ 不只有单个队列，而是有多个轮转
 对其中一些问题，一种可能的做法是把一个程序的所有任务放在一起调度。这称为*成组调度*（gang scheduling）。应用把工作分解成若干个线程，这些线程要么一起运行，要么都不运行。如果操作系统需要调度另一个应用，而空闲资源不足，它就会抢占某个应用的全部处理器以腾出空间。图 7.11 给出了成组调度的一个例子。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00426.png" alt="图 7.11" loading="lazy">
+<img src="/figures/vol2/image00426.png" alt="图 7.11" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.11</span>在成组调度下，同一进程的线程在同一时刻被调度，并被一起分时，以便其他进程有机会运行。</figcaption>
 </figure>
 
 由于成组调度很有价值，Linux、Windows 和 MacOS 等商用操作系统都提供了把一组处理器专门分配给单个应用的机制。在专门服务于单一主要用途的服务器上，这往往是合适的，例如需要精确控制线程分配的数据库。应用可以把每个线程*绑定*（pin）到特定的处理器上，并（在具有相应权限时）把它标记为以高优先级运行。系统保留一小部分处理器来运行其他应用，这些应用按常规方式多路复用，但不会干扰主要应用。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00427.png" alt="图 7.12" loading="lazy">
+<img src="/figures/vol2/image00427.png" alt="图 7.12" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.12</span>某些典型并行应用的性能随处理器数量的变化。有些应用随处理器数量线性扩展；另一些则收益递减。</figcaption>
 </figure>
 
@@ -367,7 +369,7 @@ MFQ 是轮转调度的扩展。MFQ 不只有单个队列，而是有多个轮转
 图 7.12 的一个含义是：通常让两个并行程序各用一半的处理器，比让这两个程序分时运行（各自成组调度到全部处理器上）效率更高。把不同的处理器分配给不同的任务，称为*空间共享*（space sharing），以区别于时间共享（或分时）——后者是让多个任务轮流在时间上占用同一个处理器。多处理器上的空间共享之所以更高效，还因为它把处理器的上下文切换降到最低：只要操作系统没有改变分配，处理器甚至不需要被分时。图 7.13 给出了空间共享的一个例子。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00428.png" alt="图 7.13" loading="lazy">
+<img src="/figures/vol2/image00428.png" alt="图 7.13" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.13</span>在空间共享下，每个进程被分配处理器的一个子集。</figcaption>
 </figure>
 
@@ -408,7 +410,7 @@ Windows 最近加入的一种解决方案，是把处理器的分配与重新分
 不过在大多数情况下，这里存在一种取舍：操作系统应当如何在及时性与能效这两个相互竞争的需求之间取得平衡？如果用户要求最高的响应速度或最长的电池续航，选择很容易；但用户往往希望在两者之间取得合理的折中。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00429.png" alt="图 7.14" loading="lazy">
+<img src="/figures/vol2/image00429.png" alt="图 7.14" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.14</span>响应时间与用户感知价值之间关系的一个例子。对大多数应用而言，在一定范围内，响应时间越快越有价值。低于某个阈值，用户察觉不出差别；高于某个阈值，用户会在等待结果的同时去做别的事情。</figcaption>
 </figure>
 
@@ -435,7 +437,7 @@ Windows 最近加入的一种解决方案，是把处理器的分配与重新分
 在某些系统上，操作系统的调度器必须把进程的截止期纳入考虑。例如，用于管理飞机航线的传感器与控制软件，若要派上用场，就必须及时执行。同样，用于控制汽车防抱死制动或防滑牵引力控制的软件，若要有效，就必须在精确的时刻运行。在性命攸关程度较低的领域，在计算机上播放电影时，下一帧必须按时渲染完成，否则用户就会觉得视频质量很差。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00430.png" alt="图 7.15" loading="lazy">
+<img src="/figures/vol2/image00430.png" alt="图 7.15" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.15</span>在实时约束下，如果截止期没有被满足，完成某些任务的价值会降为零。</figcaption>
 </figure>
 
@@ -472,7 +474,7 @@ Windows 最近加入的一种解决方案，是把处理器的分配与重新分
 先考虑单队列、单服务器、工作保持的系统。稍后我们会引入更多复杂度，例如多队列、多服务器，以及会丢弃部分请求的有限队列。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00431.png" alt="图 7.16" loading="lazy">
+<img src="/figures/vol2/image00431.png" alt="图 7.16" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.16</span>一个抽象的排队系统。任务到达，在队列中等待轮到自己，获得服务，然后离开。</figcaption>
 </figure>
 
@@ -609,7 +611,7 @@ $ N &= X R \
 **最好情形：均匀间隔的到达。** 假设有一组固定大小的任务，它们彼此等间隔地到达。只要任务到达的速率低于服务器完成任务的速率，就完全不会出现排队。完美！每台服务器都能在下一个顾客到来之前及时服务完前一位顾客。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00432.png" alt="图 7.17" loading="lazy">
+<img src="/figures/vol2/image00432.png" alt="图 7.17" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.17</span>最好情形下，响应时间与吞吐量作为任务到达率（相对于服务率）的函数。这些图假设到达均匀间隔，且服务时间固定。</figcaption>
 </figure>
 
@@ -632,7 +634,7 @@ $ N &= X R \
 图 7.17 还给出了到达率与吞吐量的关系。当到达率低于服务率时，提高到达率会提高吞吐量。一旦到达率达到或超过服务率，更快的到达只会让队列增长得更快，并不能提高有用的吞吐量。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00433.png" alt="图 7.18" loading="lazy">
+<img src="/figures/vol2/image00433.png" alt="图 7.18" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.18</span>一台每秒能处理 10 个请求的服务器，在两种情形下改变固定大小任务的到达率时的响应时间：均匀间隔到达，以及每秒的请求都在该秒开始时成批到达的突发式到达。</figcaption>
 </figure>
 
@@ -663,7 +665,7 @@ $ N &= X R \
 :::
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00434.png" alt="图 7.19" loading="lazy">
+<img src="/figures/vol2/image00434.png" alt="图 7.19" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.19</span>指数概率分布。</figcaption>
 </figure>
 
@@ -682,7 +684,7 @@ $f(x) = \lambda e^(-\lambda x)$
 在无记忆分布下，排队系统的行为变得易于理解。可以把队列看成一个有限状态机：以某个概率，一个新任务到达，队列长度加一；如果队列长度不为零，则以另一个概率，一个任务完成，队列长度减一。当到达与离开都服从无记忆分布时，每次状态转移的概率都是常数，且与其他转移无关，如图 7.20 所示。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00435.png" alt="图 7.20" loading="lazy">
+<img src="/figures/vol2/image00435.png" alt="图 7.20" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.20</span>表示一个队列的状态机，其到达与离开服从指数分布。\(\lambda\) 是到达率；\(\mu\) 是服务器完成每个任务的速率。在指数分布下，状态转移的概率与系统已在某个状态停留多久无关。</figcaption>
 </figure>
 
@@ -693,7 +695,7 @@ $R = S / (1 - U)$
 回忆一下，利用率即服务器处于忙碌状态的时间比例，它就是 $\lambda$ 与 $\mu$ 之比。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00436.png" alt="图 7.21" loading="lazy">
+<img src="/figures/vol2/image00436.png" alt="图 7.21" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.21</span>响应时间与利用率的关系，假设到达与离开服从指数分布。当系统接近满利用率时，平均响应时间趋于无穷。</figcaption>
 </figure>
 
@@ -814,7 +816,7 @@ Amazon 把它的网站设计成总能快速返回结果，即使所需数据因�
 不幸的是，许多系统存在相反的问题：负载上升时，它们为每个请求做的工作反而更多。一个简单的例子是用链表管理请求队列：排队的请求越多，维护队列所消耗的处理时间就越多，真正有用的工作反而做不成。如果每个任务的工作量随负载上升而增加，那么响应时间就会随利用率上升而飙升得更快，吞吐量甚至可能随着我们增加负载而下降。这使得过载管理更加重要。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00437.png" alt="图 7.22" loading="lazy">
+<img src="/figures/vol2/image00437.png" alt="图 7.22" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.22</span>实测吞吐量（每小时通过的汽车数）与占用率（道路上被车辆覆盖的百分比）的关系。每个数据点代表一次独立的观测。负载较低时，吞吐量线性增长；一旦负载越过某个临界点，继续增加车辆反而使平均吞吐量下降。由于每辆车行驶得更慢，在高速公路上完成行程所需的时间更长，这又进一步增加了负载。数据转载自 Nagel 和 Schreckenberg [122]。</figcaption>
 </figure>
 
@@ -855,7 +857,7 @@ Amazon 把它的网站设计成总能快速返回结果，即使所需数据因�
 - **能耗感知调度。** 如今，受能量约束的计算机（如智能手机、平板电脑和笔记本电脑）在数量上已远远超过由电网供电的计算机（如台式机和服务器）。因此，我们很可能看到用于监测和管理应用能耗的硬件得到发展，而操作系统需要利用这些硬件支持。我们很可能看到操作系统对应用的能耗实施沙箱隔离，以防止有缺陷或恶意的应用耗尽电池。同样，正如应用可以适应处理器数量的变化，我们也很可能看到应用根据可用能量调整自己的行为。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00438.png" alt="图 7.23" loading="lazy">
+<img src="/figures/vol2/image00438.png" alt="图 7.23" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 7.23</span>Web 服务通常由若干前端服务器组成，它们把到来的客户端请求重定向到规模更大的后端服务器集合。</figcaption>
 </figure>
 

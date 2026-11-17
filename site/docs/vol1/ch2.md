@@ -8,6 +8,8 @@ title: "第 2 章　内核抽象"
 
 <blockquote class="epigraph">好篱笆造就好邻居。——<strong>17 世纪谚语</strong></blockquote>
 
+<div class="chap-meta"><span>约 3.3 万字</span><span>阅读约 78 分钟</span><span>图 16</span></div>
+
 操作系统的一个核心作用是**保护**（protection）——把可能行为不端的应用程序和用户隔离起来，使它们不至于破坏其他应用程序或操作系统自身。对于实现上一章提到的若干操作系统目标而言，保护是必不可少的：
 
 - **可靠性。** 保护能阻止一个程序中的缺陷导致其他程序或操作系统崩溃。在用户看来，系统崩溃总是操作系统的错，哪怕问题的根源其实是某个应用程序或用户的意外行为。因此，要实现高系统可靠性，操作系统必须把自己锤炼得刀枪不入，无论应用程序或用户做出什么举动，它都能正确运行。
@@ -21,7 +23,7 @@ title: "第 2 章　内核抽象"
 实现保护是**操作系统内核**（operating system kernel）的职责。内核是系统上运行的软件的最低层，可以完全访问机器的所有硬件。内核必然是**可信的**，可以对硬件做任何事。其余的一切——也就是系统上运行的不可信软件——则运行在受限环境中，无法完全施展硬件的全部能力。图 2.1 展示了内核级执行与用户级执行之间的这一区别。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00190.png" alt="图 2.1" loading="lazy">
+<img src="/figures/vol1/image00190.png" alt="图 2.1" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.1</span>用户级与内核级操作。操作系统内核是可信的，由它在互不信任的应用程序和用户之间做出裁决。</figcaption>
 </figure>
 
@@ -62,7 +64,7 @@ title: "第 2 章　内核抽象"
 - **案例研究：虚拟机。** 一个操作系统能运行在进程内部吗？（2.10 节）
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00191.png" alt="图 2.2" loading="lazy">
+<img src="/figures/vol1/image00191.png" alt="图 2.2" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.2</span>用户编辑、编译并运行一个用户程序。物理内存中还可以存放其他程序，其中也包括操作系统自身。</figcaption>
 </figure>
 
@@ -103,7 +105,7 @@ title: "第 2 章　内核抽象"
 程序被装入内存、操作系统启动进程之后，处理器便依次取指，然后译码并执行每一条指令。有些指令负责计算数值，比如把两个寄存器相乘、把结果放进另一个寄存器；有些指令读写内存单元；还有些指令（如分支或过程调用）改变程序计数器，从而决定下一条要执行哪条指令。图 2.3 示意了处理器的基本工作原理。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00192.png" alt="图 2.3" loading="lazy">
+<img src="/figures/vol1/image00192.png" alt="图 2.3" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.3</span>CPU 的基本工作原理。操作码（opcode，operation code 的简称）就是译码后待执行的指令，例如分支、访存装入或算术运算。</figcaption>
 </figure>
 
@@ -126,7 +128,7 @@ title: "第 2 章　内核抽象"
 :::
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00193.png" alt="图 2.4" loading="lazy">
+<img src="/figures/vol1/image00193.png" alt="图 2.4" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.4</span>带内核模式和用户模式的 CPU 工作原理。</figcaption>
 </figure>
 
@@ -187,7 +189,7 @@ title: "第 2 章　内核抽象"
 操作系统如何阻止用户程序访问物理内存的某些部分？我们在第 8 章会讨论多种不同的做法，不过早期计算机开创了一种提供保护的简单机制。我们现在就介绍它，以说明其中的一般原理。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00194.png" alt="图 2.5" loading="lazy">
+<img src="/figures/vol1/image00194.png" alt="图 2.5" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.5</span>使用物理地址的基址与界限内存保护。程序产生的每一个代码地址和数据地址都要先经过检查，以确认该地址落在进程的内存区域之内。</figcaption>
 </figure>
 
@@ -224,7 +226,7 @@ title: "第 2 章　内核抽象"
 虚拟地址还能让堆和栈分别从虚拟地址空间的两端起步，从而按程序需要各自增长（图 2.6）。如果栈或堆的增长超出了最初分配给它的区域，操作系统可以把它搬到物理内存中另一个更大的区域，却让它的虚拟地址保持不变。这种扩展对用户进程来说是完全透明的。我们将在第 8 章更深入地讨论虚拟地址。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00195.png" alt="图 2.6" loading="lazy">
+<img src="/figures/vol1/image00195.png" alt="图 2.6" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.6</span>虚拟地址让一个进程的栈区域和堆区域可以独立增长。为了扩展堆，操作系统可以在物理内存中搬动堆，而无须改变堆的虚拟地址。</figcaption>
 </figure>
 
@@ -345,7 +347,7 @@ Produces:
 当中断、处理器异常或系统调用陷阱发生时，操作系统必须根据事件类型的不同而采取不同的动作：是除零异常，是读文件系统调用，还是时钟中断。处理器怎么知道该运行哪段代码呢？
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00196.png" alt="图 2.8" loading="lazy">
+<img src="/figures/vol1/image00196.png" alt="图 2.8" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.8</span>中断向量表列出了内核中用于处理各类硬件中断、处理器异常和系统调用的例程。</figcaption>
 </figure>
 
@@ -394,7 +396,7 @@ Produces:
 为每个进程分配一个内核栈，可以让中断或系统调用处理程序更容易地切换到新的进程。例如，时钟中断处理程序可能决定把处理器让给另一个进程。同样地，某个系统调用可能需要等待一次 I/O 操作完成；在等待期间，应该让别的进程运行。有了每进程栈，要挂起一个进程，就把指向它内核栈的指针存入进程控制块，然后切换到新进程的栈。我们在第 4 章会更详细地描述这一机制。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00197.png" alt="图 2.9" loading="lazy">
+<img src="/figures/vol1/image00197.png" alt="图 2.9" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.9</span>在大多数操作系统中，一个进程有两个栈：一个用于执行用户代码，一个用于执行内核代码。图中展示了进程在各种状态下的内核栈与用户栈。当进程在用户模式下运行时，它的内核栈是空的。当进程被抢占（处于就绪但未运行）时，它的内核栈中保存着用户进程被中断那一刻的用户级处理器状态。当进程正在系统调用中等待 I/O 时，内核栈中保存的是 I/O 完成后要恢复的上下文，而用户栈中保存的是系统调用返回后要恢复的上下文。</figcaption>
 </figure>
 
@@ -471,14 +473,14 @@ Motorola 88000 属于后者。88000 是一种早期的流水线体系结构；�
 首先，我们交代一些 x86 体系结构的背景知识。x86 采用分段机制，因此指针由两部分组成：(i) 段（segment），即一段内存区域，比如代码、数据或栈；(ii) 段内的偏移量（offset）。当前的用户级指令由代码段（`cs` 寄存器）加上指令指针（`eip` 寄存器）组合而成。类似地，当前的栈位置由栈段（`ss`）与栈段内的栈指针（`esp`）组合而成。当前的特权级存放在 `cs` 寄存器的低位，而不是存放在处理器状态字（`eflags` 寄存器）中。`eflags` 寄存器中含有若干条件码，它们作为指令执行的副产品被修改；`eflags` 寄存器还有另一些标志位用来控制处理器的行为，例如中断是否被屏蔽。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00198.png" alt="图 2.10" loading="lazy">
+<img src="/figures/vol1/image00198.png" alt="图 2.10" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.10</span>在 x86 体系结构上，中断处理程序被调用之前系统的状态。SS 是栈段，ESP 是栈指针，CS 是代码段，EIP 是程序计数器。程序计数器和栈指针指向用户进程中的位置，中断栈为空。</figcaption>
 </figure>
 
 当一个用户级进程正在运行时，处理器、栈、内核中断向量表以及内核栈的当前状态如图 2.10 所示。当发生处理器异常或系统调用陷阱时，硬件会小心地保存一小部分被中断线程的状态，使系统呈现为图 2.11 所示的样子：
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00199.png" alt="图 2.11" loading="lazy">
+<img src="/figures/vol1/image00199.png" alt="图 2.11" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.11</span>x86 硬件跳转到中断处理程序之后系统的状态。硬件把用户上下文保存在内核中断栈上，并把程序计数器/栈切换到内核内存中的位置。</figcaption>
 </figure>
 
@@ -499,7 +501,7 @@ Motorola 88000 属于后者。88000 是一种早期的流水线体系结构；�
 处理程序必须首先保存被中断进程其余的状态——在修改这些寄存器之前，它得先把它们保存下来！处理程序使用 x86 的 `pushad` 指令，把其余寄存器（包括当前栈指针）压入栈中。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00200.png" alt="图 2.12" loading="lazy">
+<img src="/figures/vol1/image00200.png" alt="图 2.12" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.12</span>在 x86 体系结构上，中断处理程序开始执行之后系统的状态。处理程序首先保存处理器寄存器的当前状态，因为它可能会覆盖这些寄存器。注意，栈指针被保存了两次：先是用户栈指针，然后是内核栈指针。</figcaption>
 </figure>
 
@@ -542,7 +544,7 @@ Motorola 88000 属于后者。88000 是一种早期的流水线体系结构；�
 我们用一对存根把这两种视角——用户程序调用系统调用，以及内核实现系统调用——连接起来。**一对存根**是指在两个环境之间居中调解的一对过程，这里就是在用户程序与内核之间居中调解。存根也用于调解分布式系统中计算机之间的过程调用。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00201.png" alt="图 2.13" loading="lazy">
+<img src="/figures/vol1/image00201.png" alt="图 2.13" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.13</span>一对存根在用户级调用者与内核的系统调用实现之间居中调解。图中代码针对 <code>file_open</code> 系统调用，其他调用各有自己的存根。(1) 用户进程以普通过程调用的方式，调用与自身链接在一起的存根。(2) 存根执行陷阱指令，把控制权转交给内核的陷阱处理程序。陷阱处理程序复制并检查参数，然后 (3) 调用一个例程来执行该操作。操作完成之后，(4) 代码返回到陷阱处理程序，后者把返回值复制到用户内存中，并 (5) 在陷阱之后紧邻的位置恢复用户存根的执行。(6) 用户存根返回给用户级调用者。</figcaption>
 </figure>
 
@@ -696,14 +698,14 @@ Motorola 88000 属于后者。88000 是一种早期的流水线体系结构；�
 从内核发往用户进程的上调并非总是必需的。许多应用程序采用事件循环的结构反而更简单：轮询事件，然后逐个处理每个事件。在这种模型中，内核可以通过向进程发送那些不需要立即处理的事件来传递数据。事实上，直到最近，Windows 一直都缺乏把上调立即投递到用户级程序的支持。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00202.png" alt="图 2.16" loading="lazy">
+<img src="/figures/vol1/image00202.png" alt="图 2.16" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.16</span>UNIX 信号发生之前，用户程序与信号处理程序的状态。UNIX 信号的行为类似于处理器异常，只不过发生在用户级。</figcaption>
 </figure>
 
 接下来，我们以 UNIX 信号作为具体例子，来说明内核对上调的支持。如图 2.16 和图 2.17 所示，UNIX 信号与硬件中断有许多相似之处：
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00203.png" alt="图 2.17" loading="lazy">
+<img src="/figures/vol1/image00203.png" alt="图 2.17" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.17</span>UNIX 信号发生期间，用户程序与信号处理程序的状态。信号栈保存着进程被中断处硬件寄存器的状态，并为信号处理程序在信号栈上执行留出空间。</figcaption>
 </figure>
 
@@ -728,7 +730,7 @@ Motorola 88000 属于后者。88000 是一种早期的流水线体系结构；�
 相比之下，操作系统需要频繁更新，因为不断有缺陷和安全漏洞被发现并修复。这一点，再加上 ROM 存储相对较慢且较贵的事实，都说明应当只在 BIOS 中放入少量的代码。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00204.png" alt="图 2.18" loading="lazy">
+<img src="/figures/vol1/image00204.png" alt="图 2.18" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.18</span>引导 ROM 把引导加载程序映像从磁盘复制到内存中，引导加载程序再把操作系统内核映像从磁盘复制到内存中。</figcaption>
 </figure>
 
@@ -759,7 +761,7 @@ Motorola 88000 属于后者。88000 是一种早期的流水线体系结构；�
 + 宿主内核模拟所请求的这次模式切换，就像处理器直接执行了它一样。它把程序计数器、栈指针和处理器状态字恢复成客户操作系统所期望的那样。注意，宿主内核必须保护自己免受客户操作系统中缺陷的影响，因此它还必须检查这次模式切换的合法性——确保客户内核不是在偷偷地试图让宿主内核“切换”到内核代码中的某个任意位置。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00205.png" alt="图 2.19" loading="lazy">
+<img src="/figures/vol1/image00205.png" alt="图 2.19" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 2.19</span>对运行在虚拟机内部的进程而言，用户模式与内核模式之间切换的模拟。客户内核与宿主内核各自拥有一份中断向量表和中断栈。客户向量表指向客户内核中的中断处理程序；宿主向量表指向宿主内核中的中断处理程序。</figcaption>
 </figure>
 

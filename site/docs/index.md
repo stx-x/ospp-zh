@@ -17,8 +17,7 @@ title: 操作系统：原理与实践
 
 <div class="cover-meta">
 托马斯·安德森（Thomas Anderson）　迈克·达林（Michael Dahlin）　著<br>
-第二版 · Recursive Books, 2015<br>
-四卷本中文全译
+第二版 · Recursive Books, 2015 · 四卷本中文全译
 </div>
 
 <div class="vol-grid">
@@ -53,8 +52,23 @@ title: 操作系统：原理与实践
 
 </div>
 
-<div class="cover-meta" style="margin-top:2rem;font-size:0.86rem;line-height:2.1">
-<a href="/ospp-zh/preface">前言</a>　·　<a href="/ospp-zh/appendix/glossary">术语表</a>　·　<a href="/ospp-zh/appendix/references">参考文献</a>　·　<a href="/ospp-zh/appendix/authors">关于作者</a>
+<div class="cover-stats">
+<span><b>14</b> 章</span>
+<span><b>88</b> 节</span>
+<span><b>33.4</b> 万字</span>
+<span><b>176</b> 幅插图</span>
+<span><b>44</b> 张表格</span>
+</div>
+
+<div class="cover-actions">
+<a class="cover-btn primary" href="/ospp-zh/preface">开始阅读</a>
+<a class="cover-btn" href="/ospp-zh/contents">完整目录</a>
+<a class="cover-btn" href="/ospp-zh/appendix/glossary">术语表</a>
+</div>
+
+<div class="cover-foot">
+本书译自 Recursive Books 2015 年第二版，供学习使用。图表编号、习题编号沿用原书。<br>
+排版：Typst（PDF）· VitePress（网页）· 阅读时可用右下角 <b>A</b> 调整字号，点击插图可放大。
 </div>
 
 </div>

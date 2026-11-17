@@ -8,6 +8,8 @@ title: "第 4 章　并发与线程"
 
 <blockquote class="epigraph">众人拾柴火焰高。——<em>约翰·海伍德（1546）</em></blockquote>
 
+<div class="chap-meta"><span>约 2.9 万字</span><span>阅读约 70 分钟</span><span>图 11 · 表 3</span></div>
+
 在计算机之外的真实世界里，不同的活动常常同时进行。五位爵士乐手各自演奏乐器，同时又在互相应和；一辆车向北行驶，另一辆向南行驶；药物分子的某一部分被细胞受体吸引，而另一部分被排斥；一台人形机器人一边行走，一边举起手臂、转动头部；你从《纽约时报》网站上读一篇文章，另一个人正在读另一篇；母亲节这天，数百万人同时拨打长途电话。
 
 我们用*并发*（concurrency）一词来指称可以同时发生的多个活动。真实世界是并发的；在计算机内部，现代计算机同样是并发的。例如，一台高端服务器可能带有十几颗处理器、10 块磁盘和 4 个网络接口；一台工作站可能带有十几个活跃的 I/O 设备，包括显示器、键盘、鼠标、摄像头、麦克风、扬声器、无线网卡、有线网卡、打印机、扫描仪和磁盘驱动器。今天，就连手机也往往配备多核处理器。
@@ -27,7 +29,7 @@ title: "第 4 章　并发与线程"
 从程序员的角度看，按顺序思考远比同时跟踪许多活动容易。例如，在读或写一个过程的代码时，你可以确定初始状态和一组前置条件，逐条推演每条语句如何改变状态，并由此确定后置条件。可是，当几十个事件同时发生时，你又如何写出正确的程序呢？
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00388.png" alt="图 4.1" loading="lazy">
+<img src="/figures/vol2/image00388.png" alt="图 4.1" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.1</span>操作系统提供的假象：程序员可以按需创建任意多个线程，每个线程都运行在自己的专用虚拟处理器上。当然，现实中一台机器只有有限个处理器，操作系统的职责就是把线程透明地多路复用到真实的处理器上。</figcaption>
 </figure>
 
@@ -80,7 +82,7 @@ title: "第 4 章　并发与线程"
 那么，什么时候适合在同一个程序内使用多个线程？线程在操作系统代码和应用代码中都已广泛使用，从这些经验中可以归纳出几个常见的主题。我们通过较为详细地描述一个应用来说明这些主题，看看它是如何、又为什么借助线程的。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00389.png" alt="图 4.2" loading="lazy">
+<img src="/figures/vol2/image00389.png" alt="图 4.2" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.2</span>在地球可视化程序的例子中，两个线程各自绘制场景的一部分，第三个线程管理用户界面控件，第四个线程从远程服务器取回新数据。卫星图像来源：NASA Earth Observatory。</figcaption>
 </figure>
 
@@ -137,14 +139,14 @@ title: "第 4 章　并发与线程"
 于是，线程提供的执行模型是：*每个线程都在一个专用的虚拟处理器上运行，其速度不可预测且不断变化*。从线程代码的角度看，每条指令似乎都紧接在前一条之后立即执行。然而调度器可能在某条指令与下一条之间挂起线程，稍后再恢复它。这就好像线程所运行的处理器有时会变得非常慢。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00390.png" alt="图 4.3" loading="lazy">
+<img src="/figures/vol2/image00390.png" alt="图 4.3" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.3</span>一个线程可能采用的三种执行方式，它们在程序员看来是等价的。</figcaption>
 </figure>
 
 图 4.3 给出了程序员对一个简单程序的看法，以及该程序可能的三种（在许多种之中）执行方式，具体取决于调度器如何动作。从线程的角度看，除了执行速度之外，这些方式彼此等价。事实上，线程通常根本不知道自己究竟以哪一种（或别的）方式执行。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00391.png" alt="图 4.4" loading="lazy">
+<img src="/figures/vol2/image00391.png" alt="图 4.4" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.4</span>三个线程在运行时可能出现的多种交错方式中的一部分。</figcaption>
 </figure>
 
@@ -356,7 +358,7 @@ void blockzero (unsigned char *p, int length) {
 因此，要理解操作系统如何实现线程抽象，我们必须同时定义每线程的状态（per-thread state）以及线程之间共享的状态。然后才能描述线程的生命周期——操作系统如何创建、启动、停止和删除线程，以提供这一抽象。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00392.png" alt="图 4.8" loading="lazy">
+<img src="/figures/vol2/image00392.png" alt="图 4.8" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.8</span>一个多线程的进程或操作系统内核，既有每线程的状态，也有共享的状态。线程控制块保存每线程的状态：线程正在进行的计算的当前状态（例如保存的处理器寄存器和指向栈的指针），以及管理该线程所需的元数据（例如线程 ID、调度优先级、属主和资源消耗）。共享状态包括程序的代码、全局静态变量和堆。</figcaption>
 </figure>
 
@@ -415,7 +417,7 @@ void blockzero (unsigned char *p, int length) {
 考察线程从被创建、到被调度上台与被换下处理器、再到退出的状态变迁过程，是很有用的。图 4.9 给出了线程在其一生中经历的各种状态。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00393.png" alt="图 4.9" loading="lazy">
+<img src="/figures/vol2/image00393.png" alt="图 4.9" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.9</span>线程在其生命周期中经历的各种状态。</figcaption>
 </figure>
 
@@ -506,12 +508,12 @@ void blockzero (unsigned char *p, int length) {
 - **用户级线程。** 为了避免每次线程操作都发起系统调用，有些系统支持这样一种模型：用户级的线程操作——创建、让出、汇合、退出，以及第 5 章描述的同步例程——完全在用户级库中实现，不调用内核。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00394.png" alt="图 4.11" loading="lazy">
+<img src="/figures/vol2/image00394.png" alt="图 4.11" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.11</span>一个多线程内核，其中有三个内核线程和两个单线程用户级进程。每个内核线程都有自己的线程控制块（TCB）和自己的栈；每个用户进程在用户级有一个用于执行用户代码的栈，在内核中有一个用于执行中断和系统调用的内核中断栈。</figcaption>
 </figure>
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00395.png" alt="图 4.12" loading="lazy">
+<img src="/figures/vol2/image00395.png" alt="图 4.12" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.12</span>一个多线程内核，其中有三个内核线程和两个用户级进程，每个进程含两个线程。每个用户级线程都有一个用户级栈，并在内核中有一个用于执行中断和系统调用的中断栈。</figcaption>
 </figure>
 
@@ -913,7 +915,7 @@ void blockzero (unsigned char *p, int length) {
 异步 I/O 的一个典型用法，是把同一进程内的磁盘读取与其他计算重叠起来。从磁盘读取可能需要数十毫秒。在 Linux 中，进程不必发起一个会一直阻塞到所请求的数据从磁盘读出为止的 `read` 系统调用，而可以发起 `aio_read`（异步 I/O 读）系统调用；该调用告诉操作系统启动磁盘读取，然后立即返回。稍后，进程可以调用 `aio_error` 判断磁盘读取是否已经完成，并调用 `aio_return` 取回读取的结果，如图 4.16 所示。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00396.png" alt="图 4.16" loading="lazy">
+<img src="/figures/vol2/image00396.png" alt="图 4.16" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.16</span>Linux 上的异步文件读取。应用程序调用 <code>aio_read</code> 启动读取；磁盘读取初始化之后，该系统调用立即返回。随后应用程序可以在磁盘完成所请求操作的同时做其他处理。操作完成时，磁盘中断处理器，从而使内核的磁盘中断处理程序运行。应用程序在任意时刻都可以向内核询问磁盘读取的结果是否已经可用，然后用 <code>aio_return</code> 取回结果。</figcaption>
 </figure>
 
@@ -922,7 +924,7 @@ void blockzero (unsigned char *p, int length) {
 为此，服务器调用 `select`，它会阻塞到 10 条网络连接中*任意一条*有数据可读为止。`select` 返回时，会给出一个有数据可读的连接列表。于是该线程就可以从这些连接读取数据，并且知道读取一定会立即返回。处理完数据后，线程再次调用 `select`，等待下一批数据到达。图 4.17 说明了这一设计模式。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00397.png" alt="图 4.17" loading="lazy">
+<img src="/figures/vol2/image00397.png" alt="图 4.17" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.17</span>一个用 <code>select</code> 管理多条并发连接的服务器。服务器调用 <code>select</code> 等待任意一条连接上有数据到达，然后读出所有可用的数据，再回到 <code>select</code> 继续等待。</figcaption>
 </figure>
 
@@ -970,7 +972,7 @@ void blockzero (unsigned char *p, int length) {
 两种情况下需要维护的状态也相似。在事件驱动的版本中，应用程序维护一张哈希表，表中保存每个客户端的缓冲区状态；每当有报文到达某个客户端时，服务器都必须查一次表，找出对应的缓冲区。在“每客户端一线程”的版本中，每个线程只有一个缓冲区，而由操作系统记录不同线程的状态。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00398.png" alt="图 4.18" loading="lazy">
+<img src="/figures/vol2/image00398.png" alt="图 4.18" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 4.18</span>服务器的两种可替换实现。在上图中，单个线程用一张哈希表记录每条连接的状态；在下图中，每个线程各自保存一个指向某条连接状态的指针。</figcaption>
 </figure>
 

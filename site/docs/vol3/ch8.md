@@ -9,6 +9,8 @@ title: "第 8 章　地址转换"
 <blockquote class="epigraph">你的电视机没有任何问题。请勿尝试调整画面。信号是由我们控制的。如果我们想让它响一些，就会把音量调高；如果我们想让它轻一些，就会把它调到如耳语一般。我们将控制水平方向，我们将控制垂直方向。我们可以让画面滚动，让它抖动。我们可以把聚焦调成柔和模糊，也可以把它调得晶莹清晰。在接下来的一个小时里，请安静地坐着，我们将控制你所看到和听到的一切。我们再说一遍：你的电视机没有任何问题。\
 ——<em>《外部极限》（The Outer Limits）开场旁白</em></blockquote>
 
+<div class="chap-meta"><span>约 2.6 万字</span><span>阅读约 61 分钟</span><span>图 21 · 表 3</span></div>
+
 虚拟现实的愿景令人神往。谁不想拥有这样一种能力：不必离开全息甲板（holodeck），就能去任何地方旅行？当然，这一愿景离成为现实还差得很远。理论上，只要针对你的动作去调整输入到你每一种感官的信号，虚拟现实系统就能完美地布置出场景。然而，你的感官并不那么容易被控制。也许我们很快就能为视觉提供沉浸式的环境，但平衡感、听觉、味觉和嗅觉还需要长得多的时间。触觉、本体感受（prioperception，即感到自己靠近另一物体的感觉）以及 G 力（g-forces）则更加遥远。这些当中只要有一样出了错，幻觉就消失了。
 
 我们能否为计算机程序营造一个虚拟现实的环境？在 UNIX 的 I/O 接口中，我们已经见过这样的例子：程序并不需要知道——有时也无法分辨——它的输入和输出究竟是文件、设备，还是其他进程。
@@ -66,7 +68,7 @@ title: "第 8 章　地址转换"
 ## 8.1　地址转换的概念
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00283.png" alt="图 8.1" loading="lazy">
+<img src="/figures/vol3/image00283.png" alt="图 8.1" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.1</span>地址转换的抽象表示。转换器把程序产生的（虚拟）内存地址转换为物理内存地址。</figcaption>
 </figure>
 
@@ -107,7 +109,7 @@ title: "第 8 章　地址转换"
 我们对硬件地址转换的讨论分两步进行。首先，把查找效率的问题放在一边，转而考虑如何最好地实现前面列出的其他目标：灵活的内存分配、空间效率、细粒度的保护与共享，等等。等我们得到了想要的功能，再补上各种机制，把查找效率赢回来。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00284.png" alt="图 8.2" loading="lazy">
+<img src="/figures/vol3/image00284.png" alt="图 8.2" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.2</span>用基址与界限寄存器进行地址转换。虚拟地址与基址相加得到物理地址；界限寄存器拿虚拟地址来做检查，以防止进程读写超出分配给它的内存区域。</figcaption>
 </figure>
 
@@ -118,7 +120,7 @@ title: "第 8 章　地址转换"
 ### 8.2.1　分段内存
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00285.png" alt="图 8.3" loading="lazy">
+<img src="/figures/vol3/image00285.png" alt="图 8.3" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.3</span>用段表进行地址转换。虚拟地址由两部分组成：段号和段内偏移量。段号索引段表，以定位该段在物理内存中的起点。界限寄存器拿段内偏移量来做检查，以防止进程读写超出分配给它的内存区域。进程对某些段可以只有受限的权限，例如防止对代码段进行写操作。</figcaption>
 </figure>
 
@@ -129,7 +131,7 @@ title: "第 8 章　地址转换"
 如果程序跳转进这些空洞，或者试图从空洞中装载数据，会怎么样？硬件会产生一个异常（exception），陷入操作系统内核。在 UNIX 系统上，这仍然称为*段错误*（segmentation fault），也就是引用落在了某个合法内存段之外。程序怎样才能避免误入这些空洞呢？正确的程序不会产生指向合法内存之外的引用。换个说法，试图执行并不存在的代码、或读取并不存在的数据，多半说明程序本身有缺陷。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00286.png" alt="图 8.4" loading="lazy">
+<img src="/figures/vol3/image00286.png" alt="图 8.4" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.4</span>两个进程共享一个代码段，但数据段和栈段各自独立。在这个例子中，两个进程使用相同的虚拟地址，但这些虚拟地址或者映射到同一块物理内存（若是代码），或者映射到不同的物理内存区域（若是数据）。</figcaption>
 </figure>
 
@@ -158,12 +160,12 @@ title: "第 8 章　地址转换"
 当内存段还能增长时，这一切会变得更加复杂。我们应该为一个程序的堆预留多少内存？如果把堆段放在物理内存中空间充裕的地方，而该程序最终只需要一个小堆，那我们就浪费了内存。如果反过来——把堆段放进物理内存中一小块地方——那么一旦它改变大小，我们就需要把它复制到别处。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00287.png" alt="图 8.5" loading="lazy">
+<img src="/figures/vol3/image00287.png" alt="图 8.5" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.5</span>页表地址转换的逻辑视图。物理内存被划分为页框，每个页框对应一块按页大小对齐的虚拟地址。未使用的地址在物理内存中不分配页框。</figcaption>
 </figure>
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00288.png" alt="图 8.6" loading="lazy">
+<img src="/figures/vol3/image00288.png" alt="图 8.6" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.6</span>用页表进行地址转换。虚拟地址由两部分组成：虚拟页号和页内偏移量。虚拟页号索引页表，得到物理内存中的一个页框。物理地址由页表中得到的物理页框与虚拟地址中的页偏移量拼接而成。操作系统可以限制进程对某些页的访问，例如防止对存放指令的页进行写操作。</figcaption>
 </figure>
 
@@ -210,7 +212,7 @@ title: "第 8 章　地址转换"
 - **页粒度的保护与共享。** 通常，树中每一层的每一个表项都有自己的访问权限，因而既能做粗粒度、也能做细粒度的共享，最细可到单个页框。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00289.png" alt="图 8.7" loading="lazy">
+<img src="/figures/vol3/image00289.png" alt="图 8.7" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.7</span>分页分段下的地址转换。虚拟地址由三部分组成：段号、段内的虚拟页号，以及页内偏移量。段号索引段表，得到该段的页表；虚拟地址中的页号再索引这个页表（由段表得到），得到物理内存中的一个页框。物理地址由页表中的物理页框与虚拟地址中的页偏移量拼接而成。操作系统既可以限制对整个段的访问（例如防止写代码段），也可以限制对单个页的访问（例如实现写时复制）。</figcaption>
 </figure>
 
@@ -225,7 +227,7 @@ title: "第 8 章　地址转换"
 #### 多级分页
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00290.png" alt="图 8.8" loading="lazy">
+<img src="/figures/vol3/image00290.png" alt="图 8.8" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.8</span>三层页表下的地址转换。虚拟地址由四部分组成：每一级页表的索引，以及物理页框内的偏移量。</figcaption>
 </figure>
 
@@ -281,7 +283,7 @@ Linux 让操作系统内部的地址转换数据结构仿照 x86 的“分段加
 ```
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00291.png" alt="图 8.9" loading="lazy">
+<img src="/figures/vol3/image00291.png" alt="图 8.9" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.9</span>用软件哈希表做地址转换。图中省略了硬件页表。虚拟页号经过哈希，得到哈希表中的一个位置，该位置指明物理页框。必须把虚拟页号与哈希表项的内容相核对，以处理冲突并检查页访问权限。</figcaption>
 </figure>
 
@@ -333,12 +335,12 @@ Linux 让操作系统内部的地址转换数据结构仿照 x86 的“分段加
 ```
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00292.png" alt="图 8.10" loading="lazy">
+<img src="/figures/vol3/image00292.png" alt="图 8.10" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.10</span>转换后备缓冲区的操作。图中每个虚拟页号同时与 TLB 的所有表项比较；若匹配，匹配的表项中给出物理页框和权限。若不匹配，则调用硬件多级页表查找；注意图中省略了硬件页表。</figcaption>
 </figure>
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00293.png" alt="图 8.11" loading="lazy">
+<img src="/figures/vol3/image00293.png" alt="图 8.11" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.11</span>转换后备缓冲区与硬件页表的协同工作。</figcaption>
 </figure>
 
@@ -369,7 +371,7 @@ $$
 :::
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00294.png" alt="图 8.12" loading="lazy">
+<img src="/figures/vol3/image00294.png" alt="图 8.12" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.12</span>带超级页的转换后备缓冲区的操作。图中 TLB 的某些表项可以是超级页；只要虚拟页位于该超级页之内，就算匹配。图中的超级页覆盖了整个内存段，但情况并非总是如此。</figcaption>
 </figure>
 
@@ -382,7 +384,7 @@ $$
 具体来说，当有一段 2 MB 或 1 GB 的物理内存作为一个整体被映射时，x86 会跳过一级或两级页表。处理器引用这些区域时，只需要往 TLB 中装入一个表项。在查找与超级页的匹配时，TLB 只考虑地址的高位，忽略超级页内部的偏移量。对于 2 MB 的超级页，偏移量是虚拟地址最低的 21 位；对于 1 GB 的超级页，则是最低的 30 位。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00295.png" alt="图 8.13" loading="lazy">
+<img src="/figures/vol3/image00295.png" alt="图 8.13" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.13</span>高分辨率帧缓冲区在物理内存中的布局。显示的每一行像素都可能占据整整一页，因此在垂直方向上相邻的像素位于不同的页上。</figcaption>
 </figure>
 
@@ -397,7 +399,7 @@ $$
 需要考虑三个问题：
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00296.png" alt="图 8.14" loading="lazy">
+<img src="/figures/vol3/image00296.png" alt="图 8.14" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.14</span>带进程 ID 的转换后备缓冲区的操作。TLB 中包含多个进程的表项，但只有当前进程的表项是有效的。操作系统内核在进程之间做上下文切换时，必须修改当前进程 ID。</figcaption>
 </figure>
 
@@ -417,7 +419,7 @@ $$
 - **权限缩减。** 操作系统修改页表中的一个表项时会发生什么？对于处理器缓存主存数据的普通数据高速缓存，专用硬件会保持缓存数据与内存中的数据一致。但 TLB 通常不提供硬件一致性，让 TLB 与页表保持一致是操作系统内核的责任。之所以需要软件介入，有几个原因。第一，页表项可以在进程之间共享，因此一次修改可能影响多个 TLB 表项（例如共享该页的每个进程各有一个）。第二，TLB 只保存虚拟页到物理页的映射，并不记录该映射来自哪个地址，因此它无法判断对内存的一次写操作是否会影响某个 TLB 表项。即使它真的记录了这些信息，大多数对内存的写操作也不影响页表，所以每次写内存都去检查是否会影响某个 TLB 表项，会带来大量而几乎总是用不上的开销。因此，操作系统在修改页表时，要确保 TLB 中不含有错误的映射。当操作系统为虚拟地址空间的某一部分*增加权限*时，什么也不用做。例如，操作系统可能通过分配物理内存、把无效的页表项改为指向新内存，来动态扩展堆或栈；也可能把某一页从只读改为可读写。在这些情况下，TLB 可以不去动它，因为任何需要新权限的引用要么会让硬件装入新表项，要么会触发异常，从而让操作系统装入新表项。但是，如果操作系统需要*缩减*某一页的权限，那么内核在恢复该进程运行之前，必须确保 TLB 中没有旧转换的副本。如果该页是共享的，内核还需要确保，对于那些可能引用过该页的进程 ID，TLB 中都没有副本。例如，要把某段内存标记为写时复制，操作系统必须把该区域的权限缩减为只读，并且必须从 TLB 中删除该区域的所有表项，因为旧的 TLB 表项仍然是可读写的。早期的计算机只要页表发生变化，就丢弃 TLB 的全部内容；而更现代的体系结构（包括 x86 和 ARM）支持删除单个 TLB 表项。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00297.png" alt="图 8.15" loading="lazy">
+<img src="/figures/vol3/image00297.png" alt="图 8.15" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.15</span>为保持正确的转换行为而需要 TLB 击落的示例。处理器 1 要把进程 0 中页 <code>0x53</code> 的转换改为只读，就必须从自己的 TLB 中删除该表项，并且必须确保没有其他处理器的 TLB 中还保留着旧转换。为此，它向每个处理器发送一个处理器间中断，请求对方删除旧转换。操作系统并不知道某个 TLB 中是否存在该表项（例如处理器 3 的 TLB 中就没有页 <code>0x53</code>），因此必须从所有 TLB 中删除。只有当所有处理器都确认旧转换已被删除，击落才算完成。</figcaption>
 </figure>
 
@@ -426,7 +428,7 @@ $$
 ### 8.3.4　虚拟地址缓存
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00298.png" alt="图 8.16" loading="lazy">
+<img src="/figures/vol3/image00298.png" alt="图 8.16" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.16</span>虚拟地址缓存、转换后备缓冲区与硬件页表的协同工作。</figcaption>
 </figure>
 
@@ -445,7 +447,7 @@ $$
 ### 8.3.5　物理地址缓存
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00299.png" alt="图 8.17" loading="lazy">
+<img src="/figures/vol3/image00299.png" alt="图 8.17" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.17</span>虚拟地址缓存、转换后备缓冲区、硬件页表与物理地址缓存的协同工作。</figcaption>
 </figure>
 
@@ -476,7 +478,7 @@ $$
 - **可移植的安全性。** 消费类设备的激增给应用程序的可移植性带来了挑战。没有任何一个操作系统能运行在每一种嵌入式传感器、智能手机、平板电脑、上网本、笔记本电脑、台式机和服务器上。希望跨多种设备运行的应用程序，需要一个公共的运行时环境，把应用程序与底层操作系统和硬件设备的具体细节隔离开来。把保护作为运行时系统的一部分提供，意味着用户可以下载并运行应用程序，而不必担心该程序会破坏底层的操作系统。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00300.png" alt="图 8.18" loading="lazy">
+<img src="/figures/vol3/image00300.png" alt="图 8.18" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.18</span>在可信代码的区域内执行不可信代码。可信区域可以是一个进程，例如正在执行不可信 JavaScript 的浏览器；也可以就是操作系统内核，例如正在执行不可信分组过滤器或设备驱动程序的场景。</figcaption>
 </figure>
 
@@ -487,7 +489,7 @@ $$
 一种非常简单的软件保护办法，是要求所有应用程序都用同一种经过精心设计的编程语言编写。如果这种语言及其环境只允许表达安全的程序，并且编译器和运行时系统是可信的，那么就不需要硬件保护。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00301.png" alt="图 8.19" loading="lazy">
+<img src="/figures/vol3/image00301.png" alt="图 8.19" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.19</span>在内核中执行分组过滤器。网络调试器可以装入一个分组过滤器，以便针对特定用户或应用程序跟踪分组。与过滤条件匹配的分组首部被复制给调试器，而正常的分组处理不受影响。</figcaption>
 </figure>
 
@@ -496,7 +498,7 @@ $$
 UNIX 分组过滤器通常只有很少量的代码，但由于它需要在内核态运行，系统不能依靠硬件保护来阻止行为不当的分组过滤器对无关应用程序造成破坏。于是，系统改为限制分组过滤器的语言，只允许表达安全的分组过滤器。例如，过滤器只能根据分组的内容做分支，不允许使用循环。由于过滤器通常很短，使用解释型语言带来的开销并不算过分。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00302.png" alt="图 8.20" loading="lazy">
+<img src="/figures/vol3/image00302.png" alt="图 8.20" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.20</span>在现代网页浏览器中执行 JavaScript 程序。JavaScript 解释器负责把 JavaScript 程序的影响限制在它所属的那个页面上。JavaScript 程序可以调用浏览器中一大组例程，因此这些例程也必须受到保护，以抵御恶意的 JavaScript 程序。</figcaption>
 </figure>
 
@@ -519,7 +521,7 @@ JavaScript、Lisp 和 Smalltalk 都为动态创建的数据结构提供了内存
 :::
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00303.png" alt="图 8.21" loading="lazy">
+<img src="/figures/vol3/image00303.png" alt="图 8.21" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 8.21</span>Xerox Alto 操作系统的设计。应用程序和大部分操作系统都用一种称为 Mesa 的类型安全编程语言实现；Mesa 把大多数错误隔离在引发错误的那个模块之内。</figcaption>
 </figure>
 

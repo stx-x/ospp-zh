@@ -8,6 +8,8 @@ title: "第 1 章　引论"
 
 <blockquote class="epigraph">我在幼儿园里学到了真正需要知道的一切。——<strong>罗伯特·富尔格姆（Robert Fulgham）</strong></blockquote>
 
+<div class="chap-meta"><span>约 2.1 万字</span><span>阅读约 49 分钟</span><span>图 8 · 表 1</span></div>
+
 我们如何构建可靠、可移植、高效且安全的计算机系统？一个关键组成部分是计算机的**操作系统**（operating system）——即管理计算机资源的软件。
 
 先说坏消息：操作系统的概念是计算机科学中最复杂的概念之一。一个现代的通用操作系统可以超过 5000 万行代码，换句话说，比这本教科书长一千多倍。新的操作系统还在不断涌现：如果你使用电子书阅读器、平板电脑或智能手机，就有一个操作系统在管理你的设备。鉴于这种固有的复杂性，我们把注意力集中在每一位计算机科学家都应该掌握的核心概念上。
@@ -21,7 +23,7 @@ title: "第 1 章　引论"
 作为开始，请看图 1.1 中的 Web 服务器。它的行为简单得出奇：它从网络接收一个包含网页名称的数据包，即一个 HTTP GET 请求；Web 服务器解析这个数据包，从磁盘读取文件，再把文件的内容通过网络发送回用户的机器。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00182.png" alt="图 1.1" loading="lazy">
+<img src="/figures/vol1/image00182.png" alt="图 1.1" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 1.1</span>Web 服务器的运作。客户端机器向 Web 服务器发送一个 HTTP GET 请求；服务器解析数据包，读取文件，并将文件内容回传给客户端。</figcaption>
 </figure>
 
@@ -64,14 +66,14 @@ title: "第 1 章　引论"
 类似地，汽车正日益由软件控制，由此带来一连串操作系统层面的问题。任何人都能为你的汽车编写软件吗？如果软件在你行驶在高速公路上时出了故障怎么办？汽车的操作系统会被计算机病毒劫持吗？这听起来也许牵强，但研究人员最近演示了他们如何通过一个被攻破的车载收音机，把计算机病毒植入车载计算机，从而远程关闭汽车的刹车系统。本书的一个目标，就是解释如何在各种情境下构建更可靠、更安全的计算机系统。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00183.png" alt="图 1.2" loading="lazy">
+<img src="/figures/vol1/image00183.png" alt="图 1.2" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 1.2</span>通用操作系统是一层软件，它为计算机的用户及其应用管理计算机的资源。</figcaption>
 </figure>
 
 对于通用系统而言，用户与应用交互，应用在操作系统提供的环境中执行，而操作系统则调解对底层硬件的访问，如图 1.2 所示，并在图 1.3 中进一步展开。操作系统如何同时运行多个应用？为此，操作系统需要扮演三种角色：
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00184.png" alt="图 1.3" loading="lazy">
+<img src="/figures/vol1/image00184.png" alt="图 1.3" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 1.3</span>通用操作系统的结构，是图 1.2 中简单视图的展开。最底层是硬件，它提供处理器、内存，以及一组用于存储数据、与外部世界通信的设备；硬件还提供操作系统可借以进行故障隔离和同步的原语。操作系统作为计算机上最底层的软件运行，其中既包含管理形形色色硬件设备的设备相关层，也包含提供给应用程序的一组设备无关服务。由于操作系统必须把恶意或有缺陷的应用与其他应用乃至操作系统本身隔离开，操作系统的很大一部分运行在与应用代码相隔离的独立执行环境中；操作系统的另一部分还可以作为链接进每个应用的系统库运行。相应地，应用运行在操作系统内核提供的执行环境中。应用环境远不只是硬件设备之上的简单抽象：应用在一个虚拟环境中执行，与底层硬件相比，这一环境约束更多（以防止危害）、能力更强（以掩盖硬件的局限）、也更便于使用（通过公共服务）。</figcaption>
 </figure>
 
@@ -108,7 +110,7 @@ title: "第 1 章　引论"
 只要硬件和操作系统支持得当，大多数物理资源都可以被虚拟化。例如，硬件只提供少量有限的内存，而操作系统向应用提供近乎无限的**虚拟内存**（virtual memory）幻象。无线网络会丢失或损坏数据包，操作系统掩盖这些故障，提供可靠服务的幻象。在物理层面，磁盘和闪存支持按块读写，块的大小取决于物理设备特性，并通过设备相关的块号来寻址；而大多数程序员更愿意处理按名称组织到层次目录中的、按字节寻址的文件。甚至连处理器的类型也可以被虚拟化，让同一个未经修改的应用能够运行在智能手机、平板电脑和笔记本电脑上。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00185.png" alt="图 1.4" loading="lazy">
+<img src="/figures/vol1/image00185.png" alt="图 1.4" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 1.4</span>在虚拟机中运行的客户操作系统。</figcaption>
 </figure>
 
@@ -137,14 +139,14 @@ title: "第 1 章　引论"
 下面我们描述几个设计挑战与操作系统相似的系统：
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00186.png" alt="图 1.5" loading="lazy">
+<img src="/figures/vol1/image00186.png" alt="图 1.5" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 1.5</span>云计算软件为云应用提供了对服务器资源的便捷抽象。</figcaption>
 </figure>
 
 - **云计算**（图 1.5）是这样一种计算模式：应用运行在大型数据中心里的共享计算与存储基础设施上，而不是运行在用户自己的计算机上。在共享、抽象和公共服务方面，云计算必须应对许多与操作系统相同的问题。**裁判。** 在云中相互竞争的应用之间如何分配资源？如何防止有缺陷或恶意的应用干扰其他应用？**魔术师。** 云中的计算资源在不断演进；应当提供怎样的抽象，才能把应用开发者与底层硬件的变化隔离开？**粘合剂。** 云服务常常把工作分发到不同的机器上。云软件应当提供怎样的抽象，帮助服务在其各项活动之间进行协调并共享数据？
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00187.png" alt="图 1.6" loading="lazy">
+<img src="/figures/vol1/image00187.png" alt="图 1.6" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 1.6</span>Web 浏览器将脚本和插件与宿主操作系统上的特权资源隔离开。</figcaption>
 </figure>
 
@@ -155,7 +157,7 @@ title: "第 1 章　引论"
 - **多人游戏**常常带有可扩展性 API，允许第三方软件厂商以可观的方式扩展游戏。这些扩展本身往往就是一个小型游戏，但同时又必须防止它们破坏游戏的整体规则。**裁判。** 许多游戏试图把工作下放到客户端机器上，以减轻服务器负载、提高响应速度，但这也让游戏面临玩家安装专用扩展以谋取不正当优势的威胁。游戏设计者如何为扩展和玩家设定限制，以保证公平竞技？**魔术师。** 如果游戏中的对象分布在客户端与服务器两端，这一区别对扩展代码是否可见，还是接口处于更高层次？**粘合剂。** 最成功的游戏拥有大量扩展；游戏设计者应当如何搭建他们的 API，才能更容易地培育出一个开发者社区？
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00188.png" alt="图 1.7" loading="lazy">
+<img src="/figures/vol1/image00188.png" alt="图 1.7" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 1.7</span>数据库执行着操作系统的许多任务：它在多个用户查询之间分配资源以保证响应速度，掩盖底层操作系统与硬件的差异，并为开发者提供便利的编程抽象。</figcaption>
 </figure>
 
@@ -328,7 +330,7 @@ title: "第 1 章　引论"
 ### 1.3.4　分时操作系统
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00189.png" alt="图 1.9" loading="lazy">
+<img src="/figures/vol1/image00189.png" alt="图 1.9" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 1.9</span>若干现代操作系统的谱系。</figcaption>
 </figure>
 

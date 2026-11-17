@@ -9,6 +9,8 @@ title: "第 9 章　缓存与虚拟内存"
 <blockquote class="epigraph">现金为王。\
 ——<em>佩尔·于伦哈马尔（Per Gyllenhammar）</em></blockquote>
 
+<div class="chap-meta"><span>约 2.3 万字</span><span>阅读约 55 分钟</span><span>图 16 · 表 8</span></div>
+
 有人可能会说，操作系统教材里已经不必再讲缓存与虚拟内存了。毕竟，多数学生在早先的计算机组成课上都见过高速缓存，而且大多数台式机和笔记本电脑的配置，使它们很少——如果有过的话——把内存用完。也许缓存已经不再是操作系统的话题？
 
 我们完全不能同意。在数量庞大的硬件和软件系统的设计中，高速缓存都处于核心位置，操作系统、互联网命名、Web 客户端和 Web 服务器皆然。智能手机操作系统尤其常常受内存限制，必须小心地管理内存。服务器操作系统大量使用数据中心范围内的远端内存和远端磁盘，把本地服务器内存当作高速缓存。即便是桌面操作系统，也在文件系统的实现中广泛使用缓存。最重要的是，弄明白高速缓存何时有效、何时无效，是每一位计算机系统设计者必备的素养。
@@ -82,7 +84,7 @@ title: "第 9 章　缓存与虚拟内存"
 ## 9.1　缓存的概念
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00304.png" alt="图 9.1" loading="lazy">
+<img src="/figures/vol3/image00304.png" alt="图 9.1" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.1</span>内存高速缓存处理读请求的抽象操作。内存读请求被送往高速缓存；高速缓存要么返回该内存位置所存放的数值，要么把请求继续转发给下一级高速缓存。</figcaption>
 </figure>
 
@@ -103,7 +105,7 @@ $$
 $$
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00305.png" alt="图 9.2" loading="lazy">
+<img src="/figures/vol3/image00305.png" alt="图 9.2" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.2</span>内存高速缓存执行写操作的抽象过程。内存请求先被缓冲，随后在后台送往高速缓存。通常缓存以块为单位存放数据，因此每次写都要先确保该块的其余部分已在缓存中，再更新缓存。如果缓存是直写的，数据随后会继续送往下一级缓存或内存。</figcaption>
 </figure>
 
@@ -173,7 +175,7 @@ $$
 因此，单看缓存大小或单看程序行为，都不足以决定缓存的有效性；决定缓存有效性的是二者之间的相互作用。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00306.png" alt="图 9.4" loading="lazy">
+<img src="/figures/vol3/image00306.png" alt="图 9.4" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.4</span>C 编译器运行一百万条指令时，缓存命中率随缓存大小变化的曲线。对许多程序而言，命中率与缓存大小的关系曲线形状相似。曲线的膝部称为程序的工作集。</figcaption>
 </figure>
 
@@ -196,7 +198,7 @@ $$
 不同的程序、不同的用户，工作集大小各不相同。即便在同一个程序内部，不同阶段的工作集大小也可能不同。例如，编译器的语法分析器与代码生成器所需缓存的数据就不一样。在文本编辑器中，当我们从一页翻到下一页时，工作集就发生了转移。用户也会不时改变关注点，比如你从编程作业转到历史作业。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00307.png" alt="图 9.5" loading="lazy">
+<img src="/figures/vol3/image00307.png" alt="图 9.5" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.5</span>缓存命中率随时间变化的一个例子。进程内部发生阶段变化时，或因进程之间的上下文切换，系统在进入新的平衡之前会出现一阵缓存未命中。</figcaption>
 </figure>
 
@@ -207,7 +209,7 @@ $$
 由于存储层次越来越深、越来越复杂，一个重要的研究方向是设计能使其工作集适应存储层次的算法。其中一个关注点落在处理主存与磁盘之间落差的算法上，但同样的原理也适用于存储层次的其他层级。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00308.png" alt="图 9.6" loading="lazy">
+<img src="/figures/vol3/image00308.png" alt="图 9.6" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.6</span>对装不进主存的大数组进行排序的算法：把问题切分成能装进内存的小块。</figcaption>
 </figure>
 
@@ -226,7 +228,7 @@ $$
 理解 Web 访问缓存行为的一个有用模型是*齐夫分布*（Zipf distribution）。齐夫提出这个模型是为了描述文本中各个单词的出现频率，但它也适用于许多其他场合。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00309.png" alt="图 9.7" loading="lazy">
+<img src="/figures/vol3/image00309.png" alt="图 9.7" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.7</span>齐夫分布</figcaption>
 </figure>
 
@@ -241,7 +243,7 @@ $$
 齐夫分布出人意料地吻合许多互不相关的现象：图书馆藏书的借阅热度、城市人口、薪资分布、社交网络中好友列表的大小，以及科学论文中的引用分布。在多数这类情形中，齐夫分布的确切成因尚不清楚，但它们都有一个共同的主题——人类社会网络中的热门程度。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00310.png" alt="图 9.8" loading="lazy">
+<img src="/figures/vol3/image00310.png" alt="图 9.8" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.8</span>齐夫分布下，缓存命中率随可装入缓存的条目占总条目百分比的变化（横轴取对数刻度）。</figcaption>
 </figure>
 
@@ -260,14 +262,14 @@ $$
 三种常见的缓存查找机制是：
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00311.png" alt="图 9.9" loading="lazy">
+<img src="/figures/vol3/image00311.png" alt="图 9.9" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.9</span>全相联缓存查找。缓存把地址与每一个表项比对，若有匹配则返回对应的值。</figcaption>
 </figure>
 
 - **全相联。** 在全相联（fully associative）缓存中，地址可以存放在表中任何位置，因此查找时系统必须把地址与表中所有表项逐一比对，如图 9.9 所示。只要有任何一个表项匹配，就是缓存命中。由于任何地址都能放在任何位置，系统在空间用尽、需要选择丢弃哪个表项时拥有最大的灵活性。上一章我们见过两个全相联缓存的例子。直到不久之前，TLB 通常还是全相联的——TLB 会并行地把虚拟页与 TLB 中的每一个表项比对。同样，物理内存也是一个全相联缓存：任何页框都可以存放任何虚拟页，而我们可以用多级树查找找出每个虚拟页存放在哪里。页表的集合决定了是否存在匹配。全相联查找的一个问题是摩尔定律的累积影响。随着更多内存能被集成到芯片上，缓存也变得更大。我们可以把新增内存的一部分用来加宽每个表项，但这受限于典型应用中空间局部性的多少。也可以增加表项的数量，但那意味着更多的查找硬件和比较器。举例来说，一块 2 MB 的片上缓存、缓存块为 64 字节，就有 32K 个缓存表项！把每个地址与所有表项并行比对并不现实。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00312.png" alt="图 9.10" loading="lazy">
+<img src="/figures/vol3/image00312.png" alt="图 9.10" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.10</span>直接映射缓存查找。缓存对地址做哈希，确定要检查表中的哪个位置。若该表项与地址匹配，则返回其中存放的值。</figcaption>
 </figure>
 
@@ -276,7 +278,7 @@ $$
 - **组相联。** 组相联（set associative）缓存把两种做法融合起来，以比直接映射缓存稍慢的查找，换取全相联缓存的大部分灵活性。在组相联缓存中，我们复制直接映射的表，并在每个副本中并行查找。k 路组相联缓存有 k 个副本；某个地址块可以位于这 k 个副本中的任何一个。（这等价于桶大小为 k 的哈希表。）只要地址与任何一个副本匹配，就是缓存命中。只要某个桶对应的工作集大于 k，组相联缓存就能避免直接映射缓存中的抖动问题。今天几乎所有的硬件缓存和 TLB 都采用组相联匹配；8 路组相联的缓存结构很常见。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00313.png" alt="图 9.11" loading="lazy">
+<img src="/figures/vol3/image00313.png" alt="图 9.11" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.11</span>组相联缓存查找。缓存对地址做哈希以确定要检查的位置，然后并行检查各个表中的表项；只要有一个表项与地址匹配，就返回相应的值。</figcaption>
 </figure>
 
@@ -285,7 +287,7 @@ $$
 然而，物理页框的分配由操作系统决定，这一选择会对物理地址缓存的性能产生很大影响。具体来说，假设我们有一块 2 MB 的物理地址缓存，8 路组相联，页大小为 4 KB；这对高性能处理器来说是典型配置。现在假设操作系统碰巧以一种有些奇怪的方式分配页框，使某个应用得到的物理页框彼此恰好相隔 256 KB。也许当时只有这些页框是空闲的。会发生什么？
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00314.png" alt="图 9.12" loading="lazy">
+<img src="/figures/vol3/image00314.png" alt="图 9.12" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.12</span>当缓存大于页大小时，多个页框可能映射到缓存的同一片区域。被分配了彼此恰好相隔一个缓存大小的页框的进程，只能用到缓存的一小部分。这一点对组相联缓存和直接映射缓存都成立；图中假定使用直接映射缓存以简化说明。</figcaption>
 </figure>
 
@@ -472,12 +474,12 @@ LRU 与 LFU 都在试图预测未来的行为，二者的长处是互补的。�
 要实现内存映射文件，操作系统提供一个系统调用，把文件映射到虚拟地址空间的一段区域。在该系统调用中，内核为虚拟地址空间的这块区域初始化一组页表项，把每一项都置为无效，然后返回到用户进程。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00315.png" alt="图 9.17" loading="lazy">
+<img src="/figures/vol3/image00315.png" alt="图 9.17" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.17</span>缺页之前，页表里被引用页的页表项是无效的，该页的数据存放在磁盘上。</figcaption>
 </figure>
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00316.png" alt="图 9.18" loading="lazy">
+<img src="/figures/vol3/image00316.png" alt="图 9.18" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.18</span>缺页之后，页表里被引用页的页表项变为有效，指向存放着原先在磁盘上的数据的页框。该页框的旧内容被存回磁盘，原先指向这个页框的页表项被置为无效。</figcaption>
 </figure>
 
@@ -512,12 +514,12 @@ LRU 与 LFU 都在试图预测未来的行为，二者的长处是互补的。�
 - **把对逐出页所做的任何改动复制回去。** 如果被逐出的页被修改过，在新页调入内存之前，必须先把该页的内容复制回磁盘。同样，当应用程序关闭内存映射文件时，被修改页的内容也必须复制回去。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00317.png" alt="图 9.19" loading="lazy">
+<img src="/figures/vol3/image00317.png" alt="图 9.19" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.19</span>当一个页是干净的时，它的脏位在 TLB 和页表中都被置为零，内存中的数据与磁盘上存放的数据相同。</figcaption>
 </figure>
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00318.png" alt="图 9.20" loading="lazy">
+<img src="/figures/vol3/image00318.png" alt="图 9.20" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.20</span>对干净页的第一次存储指令执行后，硬件把该页在 TLB 和页表中的脏位置为 1。该页的内容将与磁盘上存放的内容不同。</figcaption>
 </figure>
 
@@ -546,7 +548,7 @@ LRU 与 LFU 都在试图预测未来的行为，二者的长处是互补的。�
 大多数处理器架构在每个页表项里保留一个*使用位*（use bit），紧挨着我们上面讨论过的硬件脏位。页表项初始化时，操作系统把使用位清零；每当页表项被装入 TLB 时，硬件就把这一位置位。与脏位一样，只要*任意一个*页表项的使用位被置位，该物理页就算是被用过的。
 
 <figure class="book-figure">
-<img src="/figures/vol3/image00319.png" alt="图 9.21" loading="lazy">
+<img src="/figures/vol3/image00319.png" alt="图 9.21" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 9.21</span>时钟算法扫过每一个页框，收集该页使用位的当前值并把使用位清零。当时钟算法回收了足够多的未使用页框后就停下来。</figcaption>
 </figure>
 

@@ -8,6 +8,8 @@ title: "第 6 章　多对象同步"
 
 <blockquote class="epigraph">当两列火车在交叉口相向而行时，双方都应完全停住；在对方驶离之前，任何一方都不得重新启动。——<em>堪萨斯州法律，20 世纪初</em></blockquote>
 
+<div class="chap-meta"><span>约 2.7 万字</span><span>阅读约 63 分钟</span><span>图 13 · 表 7</span></div>
+
 上一章讲述了编写并发程序的一个关键构件：如何设计一个可在多个线程之间共享的对象。本章需要再向前走一步：当程序变得更复杂，含有多个共享对象和多把锁时，会发生什么？要回答这个问题，我们必须对共享对象之间的相互作用进行推理。
 
 在这一语境下，会出现若干需要考虑的问题：
@@ -187,7 +189,7 @@ title: "第 6 章　多对象同步"
 在大型多线程程序中，一种常见的同步技术是*所有权设计模式*（ownership design pattern）。在这种模式中，线程把一个对象从容器中取出，此后就可以在不持有锁的情况下访问该对象：程序结构保证任一时刻至多只有一个线程拥有该对象。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00403.png" alt="图 6.2" loading="lazy">
+<img src="/figures/vol2/image00403.png" alt="图 6.2" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.2</span>基于所有权模式的多阶段服务器。在第一阶段，每个网络连接由一个线程独占。在后续阶段中，每个时刻由一个线程解析并渲染一个给定的对象。</figcaption>
 </figure>
 
@@ -216,7 +218,7 @@ UNIX API 的这一设计带来的一个后果是，open 的实现需要一把锁
 ### 6.2.4　分阶段体系结构
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00404.png" alt="图 6.3" loading="lazy">
+<img src="/figures/vol2/image00404.png" alt="图 6.3" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.3</span>一个简单 Web 服务器的分阶段体系结构。</figcaption>
 </figure>
 
@@ -275,7 +277,7 @@ UNIX API 的这一设计带来的一个后果是，open 的实现需要一把锁
 即使有许多线程试图递增同一个计数器，同一时刻也只有一个线程能执行临界区，其余线程必须排队等候。正如前面观察到的，由于计数器的值必须从一个持锁者传递给下一个持锁者，同一个临界区在多处理器上执行所需的时间会明显长于在单处理器上。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00405.png" alt="图 6.4" loading="lazy">
+<img src="/figures/vol2/image00405.png" alt="图 6.4" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.4</span>三种锁替代实现的额外开销随争用该锁的处理器数量的变化：（a）测试并设置，（b）测试并测试并设置，（c）MCS。测量在 64 核 AMD Opteron 6262 上进行。曲线不平滑是真实系统测量的典型特征。</figcaption>
 </figure>
 
@@ -353,7 +355,7 @@ UNIX API 的这一设计带来的一个后果是，open 的实现需要一把锁
 ```
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00406.png" alt="图 6.6" loading="lazy">
+<img src="/figures/vol2/image00406.png" alt="图 6.6" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.6</span>MCS 队列锁的行为。初始时（a），tail 为 NULL，表示锁处于 FREE 状态。为获取锁（b），线程 A 原子地把 tail 设为指向 A 的 TCB。随后线程 B 与 C 通过（原子地）把自己加入队尾来排队（c）和（d），然后各自在自己的 TCB 的 needToWait 标志上自旋。线程 A 清除 B 的 needToWait 标志，把锁交给 B（e）；B 清除 C 的 needToWait 标志，把锁交给 C（f）。若没有其他线程在等待——即 tail 仍指向 C 的 TCB——C 就把 tail 设回 NULL，释放锁（a）。</figcaption>
 </figure>
 
@@ -386,7 +388,7 @@ UNIX API 的这一设计带来的一个后果是，open 的实现需要一把锁
 + **与线程调度器集成。** 更新发生时，可能仍有读者在进行中，因此共享对象必须保留其状态的多个版本，以保证旧版本在所有读者访问完毕之前不被释放。从更新被发布，到最后一名读者用完旧版本，这段时间称为**宽限期**（grace period）。RCU 锁利用线程调度器提供的信息来判断宽限期何时结束。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00407.png" alt="图 6.7" loading="lazy">
+<img src="/figures/vol2/image00407.png" alt="图 6.7" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.7</span>使用读-复制-更新（RCU）同步访问某一数据结构时，一次更新与若干次读取并发进行的时间线。</figcaption>
 </figure>
 
@@ -419,7 +421,7 @@ RCU 是一种同步抽象，它允许多个读者并发访问某个数据结构�
 如图 6.9 所示，写操作是串行的——同一时刻只能有一个写操作进行。不过，一个写操作可以与任意数量的读操作并发。一个写操作也可以与另一个写操作的宽限期并发：在多个相互重叠的宽限期结束之前，对象可能存在任意多个版本。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00408.png" alt="图 6.9" loading="lazy">
+<img src="/figures/vol2/image00408.png" alt="图 6.9" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.9</span>RCU 允许同一时刻只有一次写，并允许读与读、读与写相互重叠。初始版本为 v0，相互重叠的写操作先后把版本更新为 v1、v2，然后 v3。</figcaption>
 </figure>
 
@@ -693,7 +695,7 @@ Fridge::addMilk();
 如图 6.13 所示，访问不相交数据的请求可以并行推进。其结果与系统先执行其中一个请求、再执行另一个请求（或者反过来）相同。反之，如果两个请求触及相同的数据，那么“所有锁在开始时获取、在结束时释放”这一点就蕴含着：一个请求会在另一个请求开始之前完成。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00409.png" alt="图 6.13" loading="lazy">
+<img src="/figures/vol2/image00409.png" alt="图 6.13" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.13</span>采用全部获取/全部释放模式对多个对象加锁，得到可串行化的执行；它等价于按某种顺序逐个执行各请求所得的执行结果。</figcaption>
 </figure>
 
@@ -802,14 +804,14 @@ buffer1.get();
 如果缓冲区几乎满了，两个线程都需要等待出现空位，于是双方都无法到达“可以从另一个缓冲区取出数据”这一步，从而无法让对方取得进展。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00410.png" alt="图 6.14" loading="lazy">
+<img src="/figures/vol2/image00410.png" alt="图 6.14" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.14</span>一个死锁的例子：三辆牵引式挂车驶入路口，事先都没有确认自己能否通过路口。</figcaption>
 </figure>
 
 死锁在现实生活中也会发生。我们建议你通过思考死锁为何发生、我们又能如何预防它，来培养对死锁的直觉。例如，如果我们生活在一个没有停车标志的世界里，图 6.14 中的死锁也许会更常见。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00411.png" alt="图 6.15" loading="lazy">
+<img src="/figures/vol2/image00411.png" alt="图 6.15" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.15</span>在这个哲学家就餐问题的例子中，有 5 位哲学家、5 个盘子和 5 根筷子。</figcaption>
 </figure>
 
@@ -854,7 +856,7 @@ buffer1.get();
 + **循环等待。** 存在一组正在等待的线程，其中每个线程都在等待另一个线程所持有的资源。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00412.png" alt="图 6.16" loading="lazy">
+<img src="/figures/vol2/image00412.png" alt="图 6.16" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.16</span>一个处于死锁状态的哲学家就餐系统的图示。圆圈代表线程，方框代表资源；从方框/资源指向圆圈/线程的箭头表示“被……拥有”关系，从圆圈/线程指向方框/资源的箭头表示“等待”关系。</figcaption>
 </figure>
 
@@ -879,7 +881,7 @@ buffer1.get();
 这四个条件对死锁而言是必要的，**但不充分**。当某类资源存在多个实例时，可以存在等待环而不发生死锁，因为环外的线程可能归还资源，使某个正在等待的线程得以继续。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00413.png" alt="图 6.17" loading="lazy">
+<img src="/figures/vol2/image00413.png" alt="图 6.17" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.17</span>一个哲学家就餐系统状态的图示：等待的线程与资源之间存在环，但系统并未死锁。圆圈代表线程，方框代表资源，方框中的圆点代表某个资源的多个实例；从圆点/资源实例指向圆圈/线程的箭头表示“被……拥有”关系，从圆圈/线程指向方框/资源的箭头表示“等待”关系。</figcaption>
 </figure>
 
@@ -994,7 +996,7 @@ Dijkstra 提出银行家算法（Banker's Algorithm），是为了改进“全�
 该算法背后的洞见是：一个可能死锁的系统并不一定会死锁——对某些请求交错，它会死锁；对另一些交错，它不会。通过推迟处理某些资源请求，系统可以避开那些可能导致死锁的交错。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00414.png" alt="图 6.18" loading="lazy">
+<img src="/figures/vol2/image00414.png" alt="图 6.18" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.18</span>进程可以处于安全、不安全或死锁状态。虚线表示一个线程所经历的一系列状态——有些是安全的，有些是不安全的，最终状态是死锁。</figcaption>
 </figure>
 
@@ -1193,7 +1195,7 @@ ResourceMgr::wouldBeSafe(int resourceID, int threadID) {
 一个现代的类似物是互联网。当一台路由器过载、数据包缓冲区用尽时，它干脆丢弃到达的数据包。另一种做法是让每台路由器在确认下一台路由器有空间之前一直等待发送——这种做法可能导致死锁。精确判断是否发生了死锁，其开销会超过直接丢弃并重发一些数据包。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00415.png" alt="图 6.22" loading="lazy">
+<img src="/figures/vol2/image00415.png" alt="图 6.22" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 6.22</span>用于死锁检测的图示。左：每种资源只有一个实例。右：一种资源有多个实例。线程与资源是节点；有向边表示它们之间的“被……拥有”与“等待”关系。</figcaption>
 </figure>
 

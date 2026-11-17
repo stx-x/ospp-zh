@@ -9,6 +9,9 @@ Typst (自定义讲义模板) -> VitePress Markdown 转换器
 import os, re, sys, glob, json, shutil
 
 BASE = "/"
+LINKBASE = "/ospp-zh"
+
+TOC_INDEX = []
 
 VOLUMES = [
     dict(key="vol1", dir="book1", num="1", title="内核与进程",
@@ -292,7 +295,7 @@ def render_fig(num, path, cap, volkey):
     caph = inline_html(cap)
     return (
         '<figure class="book-figure">\n'
-        '<img src="%s" alt="图 %s" loading="lazy">\n'
+        '<img src="%s" alt="图 %s" loading="lazy" decoding="async">\n'
         '<figcaption><span class="fig-label">图 %s</span>%s</figcaption>\n'
         "</figure>\n" % (img, num, num, caph)
     )
@@ -532,6 +535,38 @@ def clean_md(s):
     s = re.sub(r"\n{3,}", "\n\n", s)
     return s.strip() + "\n"
 
+def chapter_stats(md):
+    """返回 (汉字数, 图数, 表数)"""
+    body = re.sub(r"```[\s\S]*?```", "", md)
+    body = re.sub(r"<[^>]+>", "", body)
+    cn = len(re.findall(r"[\u4e00-\u9fff]", body))
+    figs = len(re.findall(r"book-figure", md))
+    tbls = len(re.findall(r"book-table", md))
+    return cn, figs, tbls
+
+def meta_line(md):
+    cn, figs, tbls = chapter_stats(md)
+    minutes = max(1, round(cn / 420))
+    parts = ["约 %.1f 万字" % (cn / 10000), "阅读约 %d 分钟" % minutes]
+    extra = []
+    if figs:
+        extra.append("图 %d" % figs)
+    if tbls:
+        extra.append("表 %d" % tbls)
+    if extra:
+        parts.append(" · ".join(extra))
+    return '<div class="chap-meta">%s</div>\n' % "".join(
+        "<span>%s</span>" % p for p in parts)
+
+def extract_sections(md):
+    """提取 (编号, 标题)：只取 ## 级、带数字编号的节"""
+    out = []
+    for m in re.finditer(r"^##\s+(\d+(?:\.\d+)+)[　\s]+(.+)$", md, re.M):
+        num, title = m.group(1), m.group(2).strip()
+        title = re.sub(r"\*\*|\*|`", "", title)
+        out.append((num, title))
+    return out
+
 def extract_appendix(body):
     """从末章正文里切出 参考文献 / 术语表 / 关于作者，返回 (正文, {kind: text})"""
     pats = [("references", '#plainhead("参考文献")'),
@@ -595,11 +630,14 @@ def main():
                 head.append('<div class="chap-en">%s</div>' % en)
             if epi:
                 head.append('<blockquote class="epigraph">%s</blockquote>' % inline_html(epi))
+            head.append(meta_line(body).strip())
             content = "\n\n".join(head) + "\n\n" + body
             fn = "ch%s.md" % num
             open(os.path.join(vd, fn), "w").write(
                 '---\ntitle: "第 %s 章　%s"\n---\n\n%s' % (num, zh, content))
             stats["chapters"].append([num, zh, fn, len(content)])
+            TOC_INDEX.append(dict(vol=v, num=num, zh=zh, en=en or "",
+                                  sections=extract_sections(content)))
         print(json.dumps(stats, ensure_ascii=False))
 
     # 附录（全站一份）
@@ -614,6 +652,57 @@ def main():
         open(os.path.join(ad, fn), "w").write(
             "---\ntitle: %s\n---\n\n# %s\n\n" % (t, t) + body)
         print("appendix", kind, len(body))
+
+    write_contents(docs)
+
+
+def write_contents(docs):
+    """生成完整目录页 /contents"""
+    out = [
+        "---",
+        "title: 完整目录",
+        "---",
+        "",
+        "# 完整目录",
+        "",
+        '<div class="toc-vol">',
+        "",
+    ]
+    cur_vol = None
+    for item in TOC_INDEX:
+        v = item["vol"]
+        if v["key"] != cur_vol:
+            if cur_vol is not None:
+                out.append("</div>\n")
+                out.append('<div class="toc-vol">')
+            cur_vol = v["key"]
+            out.append('<h2>第%s卷　%s</h2>' % ("一二三四"[int(v["num"]) - 1], v["title"]))
+            out.append('<div class="toc-vol-en">Volume %s: %s</div>' % (v["num"], v["en"]))
+        num, zh, en = item["num"], item["zh"], item["en"]
+        out.append('<a class="toc-ch" href="%s/vol%s/ch%s">' % (LINKBASE, v["key"][-1], num))
+        out.append('<span class="toc-ch-no">第 %s 章</span>' % num)
+        out.append('<span class="toc-ch-title">%s</span>' % zh)
+        if en:
+            out.append('<span class="toc-ch-en">%s</span>' % en)
+        out.append("</a>")
+        secs = item["sections"]
+        if secs:
+            out.append('<div class="toc-secs">')
+            for snum, stitle in secs:
+                out.append("%s　%s<br>" % (snum, stitle))
+            out.append("</div>")
+    out.append("</div>")
+    out.append("")
+    out.append('<div class="toc-vol">')
+    out.append("<h2>附录</h2>")
+    for t, link in [("术语表", "/appendix/glossary"),
+                    ("参考文献", "/appendix/references"),
+                    ("关于作者", "/appendix/authors")]:
+        out.append('<a class="toc-ch" href="%s%s"><span class="toc-ch-no">附录</span>'
+                   '<span class="toc-ch-title">%s</span></a>' % (LINKBASE, link, t))
+    out.append("</div>")
+    open(os.path.join(docs, "contents.md"), "w").write("\n".join(out) + "\n")
+    print("contents written, chapters:", len(TOC_INDEX))
 
 if __name__ == "__main__":
     main()

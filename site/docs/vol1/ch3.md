@@ -8,6 +8,8 @@ title: "第 3 章　编程接口"
 
 <blockquote class="epigraph">从程序员的视角来看，用户就是一个外设——当你发出读请求时，它才会敲字。——<strong>彼得·威廉斯（Peter Williams）</strong></blockquote>
 
+<div class="chap-meta"><span>约 1.7 万字</span><span>阅读约 41 分钟</span><span>图 8 · 表 1</span></div>
+
 上一章讨论了操作系统内核为实现进程抽象所需的机制。进程是程序的一个实例——内核提供一个高效的沙箱，让不可信的代码以用户级身份直接运行在处理器上。
 
 本章讨论我们如何选择使用进程抽象：操作系统为应用程序提供哪些功能？这些功能又应该放在哪里——哪些应该放进操作系统内核，哪些应该放进用户级库？操作系统本身又应该如何组织？
@@ -37,7 +39,7 @@ title: "第 3 章　编程接口"
 令人惊叹的是，仅用十几个系统调用，我们就能描述进程管理和输入/输出的功能接口；再增加十几个，就能覆盖其余的系统调用接口。更令人惊叹的是，这些调用与最初的 UNIX 设计相比几乎没有变化。尽管它们早在 20 世纪 70 年代初就被设计和实现，其中大多数调用至今仍在各种系统中广泛使用！
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00206.png" alt="图 3.1" loading="lazy">
+<img src="/figures/vol1/image00206.png" alt="图 3.1" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 3.1</span>操作系统的功能可以实现在用户级程序中、用户级库中、内核本身中，也可以实现在由内核调用的用户级服务器中。</figcaption>
 </figure>
 
@@ -56,7 +58,7 @@ title: "第 3 章　编程接口"
 - **灵活性。** 修改位于内核之外的操作系统代码要容易得多，而且不会破坏使用旧接口的应用程序。如果我们创建了一个新版本的库，只需把它与新应用程序链接在一起，再随时间推移把旧应用程序逐步迁移到新接口即可。然而，如果要修改系统调用接口，我们要么同时修改内核和所有应用程序，要么就必须同时支持新旧两个版本，直到所有旧应用程序都完成迁移。许多应用程序由第三方开发者编写，操作系统厂商无法控制他们。因此，修改系统调用接口是重大的一步，往往需要多家公司协同配合。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00207.png" alt="图 3.2" loading="lazy">
+<img src="/figures/vol1/image00207.png" alt="图 3.2" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 3.2</span>内核的系统调用接口可以看作一个“细腰”，使应用程序和硬件能够各自独立演化。</figcaption>
 </figure>
 
@@ -164,7 +166,7 @@ if (!CreateProcess(NULL,   // No module name (use command line)
 UNIX 采取了另一种进程管理思路，一种在理论上复杂、在实践中简单的方式。UNIX 把 CreateProcess 拆分为两个步骤，称为 fork 和 exec，如图 3.4 所示。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00208.png" alt="图 3.4" loading="lazy">
+<img src="/figures/vol1/image00208.png" alt="图 3.4" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 3.4</span>UNIX 的 fork 与 exec 系统调用的操作过程。UNIX fork 复制出父进程的一个副本；UNIX exec 让子进程改而运行新程序。</figcaption>
 </figure>
 
@@ -297,7 +299,7 @@ UNIX 用一个全能的、原子的 `open` 来解决这个问题：先检测文�
 为了支持进程间通信，我们还需要几个额外的概念：
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00209.png" alt="图 3.6" loading="lazy">
+<img src="/figures/vol1/image00209.png" alt="图 3.6" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 3.6</span>管道是一个临时的内核缓冲区，它把产生数据的进程与消费数据的进程连接起来。</figcaption>
 </figure>
 
@@ -396,7 +398,7 @@ UNIX 用一个全能的、原子的 `open` 来解决这个问题：先检测文�
 ### 3.4.1　生产者—消费者通信
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00210.png" alt="图 3.9" loading="lazy">
+<img src="/figures/vol1/image00210.png" alt="图 3.9" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 3.9</span>生产者应用程序与消费者之间的进程间通信。生产者用 <code>write</code> 系统调用把数据放入缓冲区；消费者用 <code>read</code> 系统调用把数据从缓冲区中取出。</figcaption>
 </figure>
 
@@ -413,7 +415,7 @@ UNIX 用一个全能的、原子的 `open` 来解决这个问题：先检测文�
 ### 3.4.2　客户—服务器通信
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00211.png" alt="图 3.10" loading="lazy">
+<img src="/figures/vol1/image00211.png" alt="图 3.10" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 3.10</span>客户进程与服务器进程之间的进程间通信。客户和服务器一旦建立连接，客户就把请求写进一个内核缓冲区来发送给服务器。服务器把请求从缓冲区中读出，并把结果写进另一个缓冲区返回，供客户读取。</figcaption>
 </figure>
 
@@ -509,7 +511,7 @@ UNIX 用一个全能的、原子的 `open` 来解决这个问题：先检测文�
 ### 3.5.1　宏内核
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00212.png" alt="图 3.13" loading="lazy">
+<img src="/figures/vol1/image00212.png" alt="图 3.13" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 3.13</span>在宏内核操作系统中，操作系统的大部分功能都被链接在一起，置于内核之内。内核模块直接调用其他内核模块来完成所需的功能。例如，虚拟内存系统会用到缓冲区管理、同步机制以及硬件抽象层。</figcaption>
 </figure>
 
@@ -552,7 +554,7 @@ Windows 还运行在若干种不同的处理器体系结构上。通常，每种
 - **用户级设备驱动程序。** 苹果和微软都大力鼓励新的设备驱动程序运行在用户级，而不是内核中。每个设备驱动程序运行在一个独立的用户级进程里，通过系统调用来操纵物理设备。这样一来，有缺陷的驱动程序只能影响它自己的内部数据结构，而不会波及操作系统内核的其他部分；如果设备驱动程序崩溃，内核可以轻易地重启它。尽管用户级设备驱动程序正变得越来越普遍，但把现有的设备驱动程序移植到用户级运行可能颇为费时。遗憾的是，现存的大量设备驱动程序代码会直接访问内核内部的数据结构；为这些驱动程序划出一条边界已被证明相当困难。当然，随着智能手机和平板电脑这类全新的硬件与操作系统平台被开发出来，支持遗留驱动程序的问题就不那么突出了。
 
 <figure class="book-figure">
-<img src="/figures/vol1/image00213.png" alt="图 3.14" loading="lazy">
+<img src="/figures/vol1/image00213.png" alt="图 3.14" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 3.14</span>遗留设备驱动程序可以运行在虚拟机之上的客户操作系统内部，从而隔离驱动程序代码中实现错误所造成的影响。</figcaption>
 </figure>
 

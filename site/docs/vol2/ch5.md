@@ -8,6 +8,8 @@ title: "第 5 章　共享对象的同步访问"
 
 <blockquote class="epigraph">仅仅勤奋是不够的，蚂蚁也很勤奋。问题在于：我们勤奋为了什么？——<em>亨利·戴维·梭罗</em></blockquote>
 
+<div class="chap-meta"><span>约 4.0 万字</span><span>阅读约 95 分钟</span><span>图 3 · 表 7</span></div>
+
 多线程程序扩展了传统的单线程编程模型：每个线程都提供一条由我们所熟悉的指令构成的单一顺序执行流。如果一个程序含有作用于完全分离的内存子集的*独立线程*（independent threads），我们就可以分别对每个线程进行推理。在这种情况下，对独立线程的推理与对一系列彼此独立的单线程程序的推理几乎没有差别。
 
 然而，大多数多线程程序同时具有*每线程状态*（per-thread state，例如线程的栈和寄存器）和*共享状态*（shared state，例如堆上的共享变量）。*协作线程*（cooperating threads）会读写共享状态。
@@ -375,7 +377,7 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 ## 5.2　组织共享对象
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00400.png" alt="图 5.1" loading="lazy">
+<img src="/figures/vol2/image00400.png" alt="图 5.1" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 5.1</span>在多线程程序中，线程彼此独立，并发地作用于共享对象。共享对象既包含共享状态，也包含同步变量，后者用于控制对共享状态的并发访问。</figcaption>
 </figure>
 
@@ -406,7 +408,7 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 当然，在内部，共享对象必须处理同步的细节。如图 5.2 所示，共享对象是分层实现的。
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00401.png" alt="图 5.2" loading="lazy">
+<img src="/figures/vol2/image00401.png" alt="图 5.2" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 5.2</span>多线程程序是用共享对象搭建起来的。共享对象则用同步变量和状态变量搭建。同步变量是用专门的处理器指令实现的，这些指令用于管理中断的递送，并以原子方式对内存单元做读-改-写。</figcaption>
 </figure>
 
@@ -582,7 +584,7 @@ Therac-25 是一台癌症治疗设备，其设计目的是向体内靶区发射�
 ```
 
 <figure class="book-figure">
-<img src="/figures/vol2/image00402.png" alt="图 5.4" loading="lazy">
+<img src="/figures/vol2/image00402.png" alt="图 5.4" loading="lazy" decoding="async">
 <figcaption><span class="fig-label">图 5.4</span>三个共享对象，每个都是 TSQueue 类的一个实例。</figcaption>
 </figure>
 
